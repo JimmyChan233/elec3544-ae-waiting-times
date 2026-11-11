@@ -16,7 +16,9 @@ cp "$A/Slides/ELEC3544-Slides-Group16.pdf"  "$OUT/2-Presentation/Slides-backup.p
 cp "$A/Slides/presentation-script.md"       "$OUT/2-Presentation/"
 [ -f "$A/Slides/presentation-script.pdf" ] && cp "$A/Slides/presentation-script.pdf" "$OUT/2-Presentation/"
 
-cp "$A/Share/Group16-Project-2026-11-11.zip" "$OUT/3-Code-and-Data/"
+cp "$A/Share/Group16-Project-data.zip" "$OUT/3-Code-and-Data/"
+cp PREREGISTRATION.md "$OUT/3-Code-and-Data/"
+printf "# Code repository\n\nhttps://github.com/JimmyChan233/elec3544-ae-waiting-times (public)\n\nThe report cites commit 2eb14ae, tag freeze-2026-11-11.\nThe processed data tables are the release asset Group16-Project-data.zip, also copied into this folder.\n" > "$OUT/3-Code-and-Data/REPOSITORY.md"
 cp EXPERIMENT_LOG.md README.md               "$OUT/3-Code-and-Data/"
 
 cp "$A/ELEC3544-GroupProject-ReportSlides-Guide.pdf" "$A/ELEC3544-GroupProject-AssessmentStandard.pdf" \
@@ -39,8 +41,10 @@ Wed 18 Nov 2026, 16:45-16:55, CPD-1.21. Ten-minute hard cutoff; every member spe
 - \`presentation-script\`: what each person says, with timings and likely questions.
 
 ## 3-Code-and-Data
-- \`Group16-Project-2026-11-11.zip\`: code, processed data and every result file. Its SHA-256 prefix is printed in the report.
-- \`EXPERIMENT_LOG.md\`, \`README.md\`: copies from inside the zip, for quick reading.
+- \`REPOSITORY.md\`: link to the public GitHub repository with all code and results.
+- \`Group16-Project-data.zip\`: the processed data tables (also a release asset on GitHub). Its SHA-256 prefix is printed in the report.
+- \`PREREGISTRATION.md\`: the blind test on 11-15 November, fixed on 11 November.
+- \`EXPERIMENT_LOG.md\`, \`README.md\`: copies from the repository, for quick reading.
 
 ## 4-Course-Requirements
 The brief, the rubric, the timetable and our proposal.

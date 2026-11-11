@@ -105,14 +105,14 @@ The result is {n_files} snapshot files ({n_rows_latest} hospital-hours) from 1 J
 
 **Hyper-parameters and seeds.** Gradient boosting: 400 iterations, no early stopping, learning rate 0.05, 63 leaves for regression (chosen from three settings on validation) and 31 for classification. Random forest: 150 trees, minimum leaf 20, half of the features per split, fitted on at most 150,000 sampled rows. Ridge and lasso strengths chosen on validation from 0.1–100 and 0.01–1. Logistic regression: C = 1. Decision tree: minimum leaf 50, depth chosen on validation from 6, 10 and 14 ({dt3} at 3 hours, {dt24} at 24). Rule weights: {b3} at 3 hours, {b24} at 24. Quantile boosting uses the regression settings. Every random seed is 0.
 
-**Data and code versions.** Raw data: archive versions of the two HA feed URLs [1, 2], one per hour, 1 January 2023 to 10 November 2026. The October results use the table frozen on 30 October (`hourly_features_full.csv`, {n_rows} rows); the November test uses the table rebuilt on 11 November (`hourly_features_latest.csv`, {n_rows_latest} rows). Code, processed tables and every result file cited here are in the archive `Group16-Project-2026-11-11.zip` (SHA-256 `{zip_sha}…`), available from the group on request.
+**Data and code versions.** Raw data: archive versions of the two HA feed URLs [1, 2], one per hour, 1 January 2023 to 10 November 2026. The October results use the table frozen on 30 October (`hourly_features_full.csv`, {n_rows} rows); the November test uses the table rebuilt on 11 November (`hourly_features_latest.csv`, {n_rows_latest} rows). Code, result files and the experiment log are public at <https://github.com/JimmyChan233/elec3544-ae-waiting-times>, commit `2eb14ae` (tag `freeze-2026-11-11`). The processed tables are the release asset `Group16-Project-data.zip` (SHA-256 `{zip_sha}…`).
 
 **Platform.** Apple MacBook Pro, M4 Pro (14 CPU cores, no GPU used), 48 GB memory, macOS 27.0; Python 3.12.5, scikit-learn 1.8.0, pandas 3.0.2, NumPy 2.1.3, matplotlib 3.10.8 (pinned in `requirements.txt`). The main training run takes about 10 minutes, the November test about 8 and the post-hoc checks about 5. The foundation model ran on the same CPU in a separate environment (chronos-forecasting 2.3.2, PyTorch 2.15.0; 18,090 forecasts in 71 seconds).
 
-**Reproducing the results.** From the root of the archive, these commands rebuild the data and every number, table and figure in this report, in order (the table frozen on 30 October, `hourly_features_full.csv`, ships with the archive):
+**Reproducing the results.** From a clone of the repository, these commands rebuild the data and every number, table and figure in this report, in order (the table frozen on 30 October, `hourly_features_full.csv`, is in the release asset):
 
 ```
-cd Project && pip install -r requirements.txt && python3 -m pytest -q tests/
+pip install -r requirements.txt && python3 -m pytest -q tests/
 python3 src/download_ae_archive.py --start 20230101 --end 20261110 --every 4 --out ~/elec3544_data/raw/ae
 python3 src/fetch_aux.py
 python3 src/parse_ae.py --raw ~/elec3544_data/raw/ae --out data/processed/ae_snapshots_latest.csv
@@ -129,7 +129,7 @@ python3 src/foundation_baseline.py      # Chronos-Bolt, separate env: requiremen
 python3 src/plot_report.py && python3 report/build_final.py
 ```
 
-The October runs read the table frozen on 30 October (`hourly_features_full.csv`, data to 29 October). Rebuilding from the archive today also returns 30–31 October; on the complete month the frozen 3-hour model scores {oct_full_gb3} against {oct_full_hm} minutes, the same conclusion. The full experiment log is `EXPERIMENT_LOG.md` in the archive.
+The October runs read the table frozen on 30 October (`hourly_features_full.csv`, data to 29 October). Rebuilding from the archive today also returns 30–31 October; on the complete month the frozen 3-hour model scores {oct_full_gb3} against {oct_full_hm} minutes, the same conclusion. The full experiment log is `EXPERIMENT_LOG.md` in the repository.
 
 # 5 Results and Discussion
 
@@ -192,7 +192,7 @@ The 3-hour error is largest around midnight (about {err_night} minutes at 00:00�
 
 **Not supported.** A day ahead, no model reliably beat a simple rolling rule. The 24-hour gains we first reported against the historical mean reflect a drifting level, not skill.
 
-**Next steps.** Schedule the live-feed collector to cover archive gaps and extend the test period; test on 1–15 November as the proposal promised; add slower signals such as influenza surveillance for the 24-hour horizon; calibrate the forecast range; and try hourly district rainfall before ruling weather out.
+**Next steps.** Schedule the live-feed collector to cover archive gaps and extend the test period; score the blind test on 11–15 November that we pre-registered on 11 November (`PREREGISTRATION.md` in the repository); add slower signals such as influenza surveillance for the 24-hour horizon; calibrate the forecast range; and try hourly district rainfall before ruling weather out.
 
 \needspace{{24\baselineskip}}
 

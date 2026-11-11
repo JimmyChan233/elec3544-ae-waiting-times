@@ -41,7 +41,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prefix", default="results/models_2026-10-30_v2")
     ap.add_argument("--v1", default="results/models_2026-10-30")
-    ap.add_argument("--zip", default=str(ROOT.parent / "Assignments" / "Share" / "Group16-Project-2026-11-11.zip"))
+    ap.add_argument("--zip", default=str(ROOT.parent / "Assignments" / "Share" / "Group16-Project-data.zip"))
     a = ap.parse_args()
     N = br.numbers(a)
     f1, f3 = br.f1, br.f3
