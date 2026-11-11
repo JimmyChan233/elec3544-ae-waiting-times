@@ -15,6 +15,7 @@ cp "$A/Slides/ELEC3544-Slides-Group16.html" "$OUT/2-Presentation/Slides-to-prese
 cp "$A/Slides/ELEC3544-Slides-Group16.pdf"  "$OUT/2-Presentation/Slides-backup.pdf"
 cp "$A/Slides/presentation-script.md"       "$OUT/2-Presentation/"
 [ -f "$A/Slides/presentation-script.pdf" ] && cp "$A/Slides/presentation-script.pdf" "$OUT/2-Presentation/"
+[ -f "$A/Slides/presentation-script-zh.pdf" ] && cp "$A/Slides/presentation-script-zh.pdf" "$A/Slides/presentation-script-zh.md" "$OUT/2-Presentation/"
 
 cp "$A/Share/Group16-Project-data.zip" "$OUT/3-Code-and-Data/"
 cp PREREGISTRATION.md "$OUT/3-Code-and-Data/"
@@ -39,6 +40,7 @@ Wed 18 Nov 2026, 16:45-16:55, CPD-1.21. Ten-minute hard cutoff; every member spe
 - \`Slides-to-present.html\`: open in Chrome, arrow keys or click to move, \`f\` for full screen. Needs internet once for the fonts.
 - \`Slides-backup.pdf\`: use this if the HTML misbehaves.
 - \`presentation-script\`: what each person says, with timings and likely questions.
+- \`presentation-script-zh\`: the same script with a Chinese explanation under every slide and question (for preparation, not for reading aloud).
 
 ## 3-Code-and-Data
 - \`REPOSITORY.md\`: link to the public GitHub repository with all code and results.

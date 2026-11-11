@@ -18,7 +18,8 @@ gradient boosting adds about two minutes, and a day ahead nothing we built beats
 - `EXPERIMENT_LOG.md`: every change, why, and what happened.
 - `PREREGISTRATION.md`: the blind test on 11–15 November 2026, fixed before that data existed.
 - `report/report_final.md`: the report source; `report/build_final.py` fills in every number from `results/`.
-- Processed tables are in the release asset `Group16-Project-data.zip` (see `data/processed/README.md`).
+- Processed tables are in the release asset `Group16-Project-data.zip`; unzip it into `data/processed/` (see `data/processed/README.md`).
+- Rebuilding the report PDF (`report/build_final.py`) also needs pandoc and XeLaTeX from TeX Live, which provides the Linux Biolinum font; the experiments need only Python.
 - AI tools were used heavily in this project; the report's "Use of AI tools" section says how and how the outputs were checked.
 
 ## Pipeline

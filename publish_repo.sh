@@ -15,7 +15,7 @@ cat > "$DEST/.gitignore" <<'G'
 __pycache__/
 .pytest_cache/
 .DS_Store
-data/processed/
+data/processed/*.csv
 data/raw/ae/
 *.zip
 G

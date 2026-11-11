@@ -113,6 +113,7 @@ The result is {n_files} snapshot files ({n_rows_latest} hospital-hours) from 1 J
 
 ```
 pip install -r requirements.txt && python3 -m pytest -q tests/
+# data: unzip the release asset Group16-Project-data.zip into data/processed/, or rebuild it:
 python3 src/download_ae_archive.py --start 20230101 --end 20261110 --every 4 --out ~/elec3544_data/raw/ae
 python3 src/fetch_aux.py
 python3 src/parse_ae.py --raw ~/elec3544_data/raw/ae --out data/processed/ae_snapshots_latest.csv
@@ -126,7 +127,7 @@ python3 src/live_test.py                # November live test (Table 3, Figure 4)
 python3 src/live_predictions.py         # per-hour November forecasts, pairwise check
 python3 src/posthoc_checks.py && python3 src/posthoc_pairwise.py   # Section 5.4 (Table 4)
 python3 src/foundation_baseline.py      # Chronos-Bolt, separate env: requirements-foundation.txt
-python3 src/plot_report.py && python3 report/build_final.py
+python3 src/plot_report.py && python3 report/build_final.py   # PDF: needs pandoc and XeLaTeX (TeX Live)
 ```
 
 The October runs read the table frozen on 30 October (`hourly_features_full.csv`, data to 29 October). Rebuilding from the archive today also returns 30–31 October; on the complete month the frozen 3-hour model scores {oct_full_gb3} against {oct_full_hm} minutes, the same conclusion. The full experiment log is `EXPERIMENT_LOG.md` in the repository.
@@ -139,9 +140,9 @@ The October runs read the table frozen on 30 October (`hourly_features_full.csv`
 
 ![October 2026 test results for every model. The dotted line marks the historical-mean baseline at 3 hours.]({fig_models}){{width=86%}}
 
-**Three hours ahead, every learned model beats both original baselines.** The error falls from {hm_mae3} minutes for the historical mean to {ols_mae3} for OLS, {rf_mae3} for the random forest and {gb_mae3} for gradient boosting, {gain_mae3}% below the baseline. OLS with only the calendar and the hospital is *worse* than the historical mean; adding recent waits is what makes a linear model useful, and the tree models gain a few more minutes from interactions. Ridge and lasso match OLS: with {n_train_reg} training rows there is little to regularise.
+**Three hours ahead, every model that uses recent waits beats both original baselines.** The error falls from {hm_mae3} minutes for the historical mean to {ols_mae3} for OLS, {rf_mae3} for the random forest and {gb_mae3} for gradient boosting, {gain_mae3}% below the baseline. OLS with only the calendar and the hospital is *worse* than the historical mean; adding recent waits is what makes a linear model useful, and the tree models gain a few more minutes from interactions. Ridge and lasso match OLS: with {n_train_reg} training rows there is little to regularise.
 
-**Twenty-four hours ahead, the first models did not beat the historical mean.** Gradient boosting looked better on validation ({gb_val24} against {hm_val24}) but not on the test month ({gb_mae24} against {hm_mae24}). The classifier tells the same story. Logistic regression trained on all years falls below the baseline; trained on the new format only it reaches AUC {logit_b} at 3 hours, so the era flag is enough for trees but not for a linear model.
+**Twenty-four hours ahead, no first-round model has a clear or stable advantage over the historical mean.** Gradient boosting looked better on validation ({gb_val24} against {hm_val24}) but not on the test month ({gb_mae24} against {hm_mae24}); the linear models and the forest end within 0.3 minutes of the baseline. The classifier tells the same story. Logistic regression trained on all years falls below the baseline; trained on the new format only it reaches AUC {logit_b} at 3 hours, so the era flag is enough for trees but not for a linear model.
 
 {table_cls}
 
