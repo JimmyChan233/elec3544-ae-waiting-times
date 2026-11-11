@@ -8,6 +8,7 @@ Right: monthly share of hospital-hours with cat 4/5 wait > 2 h, both formats, wi
 import argparse
 import matplotlib
 matplotlib.use("Agg")
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -28,20 +29,22 @@ def main():
         [pd.Grouper(freq="MS"), "fmt"])["t45_over2h"].mean().unstack("fmt")
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 3.0), dpi=200)
-    by_hr.plot(ax=ax1, marker="o", ms=3, lw=1.4)
+    by_hr.plot(ax=ax1, marker="o", ms=3.5, lw=1.8)
     ax1.axhline(120, color="grey", ls=":", lw=1)
     ax1.set(xlabel="Hour of day", ylabel="Cat 4/5 median wait (min)", xticks=range(0, 24, 3),
-            title="Daily cycle, 18 hospitals (Oct 2025 - Sep 2026)")
-    ax1.legend(fontsize=7, frameon=False)
+            title="Daily cycle, 18 hospitals (Oct 2025 to Sep 2026)")
+    ax1.legend(fontsize=9.5, frameon=False)
     for f, lab in (("old", "Old format (category lower bound)"), ("new", "New format (median)")):
         if f in monthly:
-            ax2.plot(monthly.index, monthly[f], marker="o", ms=2.5, lw=1.2, label=lab)
+            ax2.plot(monthly.index, monthly[f], marker="o", ms=3, lw=1.6, label=lab)
     ax2.axvline(pd.Timestamp("2025-10-13"), color="grey", ls="--", lw=1)
-    ax2.set(ylabel="Share of hours > 2 h", ylim=(0, 1), title="Wait > 2 h by month (label, 2023-2026)")
-    ax2.legend(fontsize=7, frameon=False, loc="lower left")
-    ax2.tick_params(axis="x", labelsize=7)
+    ax2.set(ylabel="Share of hours over 2 h", ylim=(0, 1), title="Share of hours over 2 h, by month")
+    ax2.legend(fontsize=9.5, frameon=False, loc="lower left")
+    ax2.xaxis.set_major_locator(mdates.YearLocator()); ax2.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     for ax in (ax1, ax2):
-        ax.title.set_fontsize(9)
+        ax.title.set_fontsize(11.5)
+        ax.tick_params(labelsize=10)
+        ax.xaxis.label.set_fontsize(10.5); ax.yaxis.label.set_fontsize(10.5)
         ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     fig.savefig(a.out, bbox_inches="tight")
