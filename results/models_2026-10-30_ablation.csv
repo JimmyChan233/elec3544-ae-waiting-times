@@ -1,0 +1,27 @@
+task,H,group,metric,delta
+reg,3,calendar,val MAE increase (min),1.9154635675153742
+reg,3,hospital,val MAE increase (min),1.5320627709412236
+reg,3,history,val MAE increase (min),12.961543877948621
+reg,3,hist_mean,val MAE increase (min),-0.10144588047191405
+reg,3,air,val MAE increase (min),-0.130401537929977
+reg,3,weather,val MAE increase (min),-0.25712222956082087
+cls,3,calendar,val AUC change,-0.008669265284953376
+cls,3,hospital,val AUC change,-0.0034172372603552548
+cls,3,history,val AUC change,-0.053210185089810125
+cls,3,hist_mean,val AUC change,-0.00044892124813200596
+cls,3,air,val AUC change,-3.768418173932808e-05
+cls,3,weather,val AUC change,0.0003788416812591233
+cls,3,era,val AUC change,-0.008514986630428045
+reg,24,calendar,val MAE increase (min),0.6527760709951025
+reg,24,hospital,val MAE increase (min),0.3940424634976267
+reg,24,history,val MAE increase (min),3.5653963410622254
+reg,24,hist_mean,val MAE increase (min),0.027194119729657018
+reg,24,air,val MAE increase (min),0.008163902423113711
+reg,24,weather,val MAE increase (min),-1.3704664924449546
+cls,24,calendar,val AUC change,-0.0011801726749927077
+cls,24,hospital,val AUC change,-0.003462944992298711
+cls,24,history,val AUC change,-0.012823199384620287
+cls,24,hist_mean,val AUC change,-0.005301133115637291
+cls,24,air,val AUC change,-0.0005676119637638699
+cls,24,weather,val AUC change,0.0014659002128168952
+cls,24,era,val AUC change,-0.009670992275827017

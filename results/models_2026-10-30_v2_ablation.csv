@@ -1,0 +1,19 @@
+task,H,group,metric,delta
+reg,3,calendar,val MAE increase (min),1.6152604007876405
+reg,3,hospital,val MAE increase (min),1.3580007198037052
+reg,3,history,val MAE increase (min),9.716770592220556
+reg,3,hist_mean,val MAE increase (min),0.02765517177386556
+cls,3,calendar,val AUC change,-0.008536551427523076
+cls,3,hospital,val AUC change,-0.0033880705710995773
+cls,3,history,val AUC change,-0.05057226827330408
+cls,3,hist_mean,val AUC change,0.0010083891879651974
+cls,3,era,val AUC change,-0.007629046938370965
+reg,24,calendar,val MAE increase (min),-0.11426785882559187
+reg,24,hospital,val MAE increase (min),0.5318664846654855
+reg,24,history,val MAE increase (min),1.6048406706913099
+reg,24,hist_mean,val MAE increase (min),0.35411007711498144
+cls,24,calendar,val AUC change,0.0004607638154753291
+cls,24,hospital,val AUC change,0.00023700796271119984
+cls,24,history,val AUC change,-0.008090991396368485
+cls,24,hist_mean,val AUC change,-0.0026530483165904117
+cls,24,era,val AUC change,-0.009501666452825575

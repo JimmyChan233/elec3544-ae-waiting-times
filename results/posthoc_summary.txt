@@ -1,0 +1,42 @@
+new-format waits that are a multiple of 30 min: 100.0%; exactly 120 min: 12.6%
+October 2026 hours with no weather value (previous-day rainfall): 96.8%
+
+H=3: damped-anomaly weight 0.647, level-anomaly weight 0.618 (fitted on training rows)
+  decision tree: depth 14 chosen on validation (MAE 43.62)
+  fitted grad_boosting in 13s
+  fitted gb_slow_history in 18s
+  fitted gb_level in 13s
+  val: 10-90% range covers 76.3% (below 13.9%, above 9.8%), mean width 125 min, median-model MAE 40.62
+  oct: 10-90% range covers 75.6% (below 12.7%, above 11.8%), mean width 127 min, median-model MAE 41.05
+  nov: 10-90% range covers 76.2% (below 14.8%, above 9.0%), mean width 123 min, median-model MAE 39.47
+  val: hist_mean 51.55  persistence 61.85  rolling28 49.34  damped_anomaly 43.05  level_anomaly 42.30  decision_tree 43.62  grad_boosting 40.62  gb_slow_history 40.47  gb_level 40.26
+  oct: hist_mean 51.80  persistence 59.67  rolling28 50.36  damped_anomaly 43.31  level_anomaly 43.44  decision_tree 44.25  grad_boosting 41.05  gb_slow_history 41.03  gb_level 40.96
+    grad_boosting vs best simple rule on validation (level_anomaly): -2.39 (95% day-bootstrap -3.24 .. -1.57)
+    gb_slow_history vs best simple rule on validation (level_anomaly): -2.41 (95% day-bootstrap -3.28 .. -1.56)
+    gb_level vs best simple rule on validation (level_anomaly): -2.48 (95% day-bootstrap -3.07 .. -1.89)
+    days grad_boosting beats level_anomaly: 22 of 24
+  nov: hist_mean 53.18  persistence 55.82  rolling28 48.65  damped_anomaly 42.20  level_anomaly 41.18  decision_tree 42.63  grad_boosting 39.47  gb_slow_history 39.42  gb_level 38.99
+    grad_boosting vs best simple rule on validation (level_anomaly): -1.71 (95% day-bootstrap -2.51 .. -0.94)
+    gb_slow_history vs best simple rule on validation (level_anomaly): -1.76 (95% day-bootstrap -2.39 .. -1.12)
+    gb_level vs best simple rule on validation (level_anomaly): -2.19 (95% day-bootstrap -2.77 .. -1.62)
+    days grad_boosting beats level_anomaly: 8 of 8
+
+H=24: damped-anomaly weight 0.327, level-anomaly weight 0.205 (fitted on training rows)
+  decision tree: depth 10 chosen on validation (MAE 50.96)
+  fitted grad_boosting in 13s
+  fitted gb_slow_history in 14s
+  fitted gb_level in 15s
+  val: 10-90% range covers 77.9% (below 13.0%, above 9.1%), mean width 153 min, median-model MAE 48.73
+  oct: 10-90% range covers 74.1% (below 13.3%, above 12.6%), mean width 152 min, median-model MAE 51.91
+  nov: 10-90% range covers 78.4% (below 14.4%, above 7.2%), mean width 155 min, median-model MAE 48.68
+  val: hist_mean 51.55  persistence 61.81  rolling28 49.34  damped_anomaly 49.91  level_anomaly 48.98  decision_tree 50.96  grad_boosting 48.73  gb_slow_history 48.02  gb_level 47.98
+  oct: hist_mean 51.80  persistence 61.62  rolling28 50.36  damped_anomaly 51.62  level_anomaly 50.41  decision_tree 51.77  grad_boosting 51.91  gb_slow_history 50.25  gb_level 50.29
+    grad_boosting vs best simple rule on validation (level_anomaly): +1.50 (95% day-bootstrap +0.09 .. +2.97)
+    gb_slow_history vs best simple rule on validation (level_anomaly): -0.16 (95% day-bootstrap -1.07 .. +0.79)
+    gb_level vs best simple rule on validation (level_anomaly): -0.12 (95% day-bootstrap -1.15 .. +0.94)
+    days grad_boosting beats level_anomaly: 8 of 24
+  nov: hist_mean 53.18  persistence 56.61  rolling28 48.65  damped_anomaly 50.07  level_anomaly 47.85  decision_tree 50.80  grad_boosting 48.68  gb_slow_history 47.35  gb_level 47.12
+    grad_boosting vs best simple rule on validation (level_anomaly): +0.83 (95% day-bootstrap -0.94 .. +2.55)
+    gb_slow_history vs best simple rule on validation (level_anomaly): -0.50 (95% day-bootstrap -1.84 .. +0.90)
+    gb_level vs best simple rule on validation (level_anomaly): -0.73 (95% day-bootstrap -1.98 .. +0.44)
+    days grad_boosting beats level_anomaly: 3 of 8

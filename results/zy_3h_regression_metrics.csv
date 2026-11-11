@@ -1,0 +1,5 @@
+model,split,MAE
+hist_mean,val,51.54861144895389
+tuned_hgb,val,40.50603380773889
+hist_mean,test,51.97263801097706
+tuned_hgb,test,41.1984511903756

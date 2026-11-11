@@ -1,0 +1,5 @@
+pairwise 3 h, 1-10 Nov, 25,529 pair-hours (rule weight 0.618; rule MAE 41.18):
+  model      correct 0.815
+  rule       correct 0.812
+  hist_mean  correct 0.740
+  wait_now   correct 0.693

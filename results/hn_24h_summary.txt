@@ -1,0 +1,15 @@
+24 h regression | train 137,952 val 12,906 test 9,378
+All model and shrinkage choices use September validation only. October is evaluated for the selected models afterwards.
+Initial HGB {'learning_rate': 0.05, 'max_leaf_nodes': 31}: val MAE 48.792 (57s)
+Initial HGB {'learning_rate': 0.05, 'max_leaf_nodes': 63}: val MAE 48.731 (118s)
+Initial HGB {'learning_rate': 0.1, 'max_leaf_nodes': 31}: val MAE 48.856 (57s)
+Selected HGB parameters: {"learning_rate": 0.05, "max_leaf_nodes": 63}
+original         raw val MAE 48.731; shrunk val MAE 48.726 (alpha=0.95)
+residual         raw val MAE 48.609; shrunk val MAE 48.590 (alpha=0.95)
+slow_history     raw val MAE 48.019; shrunk val MAE 48.019 (alpha=1.00)
+residual_slow    raw val MAE 48.400; shrunk val MAE 48.400 (alpha=1.00)
+Selected on validation: slow_history / raw, alpha=1.00
+October test results (after selection):
+  hist_mean        baseline MAE 51.973 RMSE 70.215
+  original         raw      MAE 52.394 RMSE 71.725
+  slow_history     raw      MAE 50.727 RMSE 69.299

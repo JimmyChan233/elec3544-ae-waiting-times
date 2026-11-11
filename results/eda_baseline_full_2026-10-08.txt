@@ -1,0 +1,77 @@
+downloads finished Thu Oct  8 04:11:23 HKT 2026: old    24073 new     8386
+rows=584010 snapshots=32445 hospitals=18
+unparsed t45: 0
+fmt
+new    150876
+old    433134
+dtype: int64
+hourly rows: 584,010  hospitals: 18  range: 2023-01-01 00:00:00 .. 2026-09-30 23:00:00
+missing share: {'t45_min': 0.0, 'aqhi': 0.021, 'rf_mm': 0.022, 'temp_mean': 0.022, 'is_holiday': 0.0}
+holiday hours: 12942 | unmapped stations: 0
+snapshot-level rows: 584,010  snapshots: 32,445  hospitals: 18
+date range: 2023-01-01 00:00:00 .. 2026-09-30 23:45:00
+
+rows by format:
+ fmt
+new    150876
+old    433134
+
+unparsed t45_min by format:
+ fmt
+new    0
+old    0
+
+hourly rows: 584,010  (>1,000 required)
+
+share of hours with cat 4/5 wait > 2h, by format:
+ fmt
+new    0.548
+old    0.748
+
+mean cat 4/5 wait (min) by hour of day, new format:
+hr
+0     226.0
+1     210.0
+2     199.0
+3     182.0
+4     167.0
+5     147.0
+6     124.0
+7     103.0
+8      91.0
+9      97.0
+10    122.0
+11    147.0
+12    157.0
+13    157.0
+14    157.0
+15    155.0
+16    160.0
+17    173.0
+18    182.0
+19    188.0
+20    198.0
+21    213.0
+22    221.0
+23    229.0
+
+busiest hospitals (mean cat 4/5 wait, min):
+hospital
+Kwong Wah Hospital                          255.0
+United Christian Hospital                   253.0
+Tuen Mun Hospital                           252.0
+Prince of Wales Hospital                    247.0
+Pamela Youde Nethersole Eastern Hospital    243.0
+
+[old] baselines on cat 4/5 wait (train hours 303210, test hours 129924):
+   pers  n=129906  MAE=26.6 min  RMSE=59.2 min
+   hist  n=129924  MAE=86.7 min  RMSE=110.3 min
+
+[new] baselines on cat 4/5 wait (train hours 105624, test hours 45252):
+   pers  n=45234  MAE=35.6 min  RMSE=49.4 min
+   hist  n=45252  MAE=62.3 min  RMSE=85.6 min
+
+[new] baselines on cat 3 median wait (train 105624, test 45252):
+   pers  n=45234  MAE=6.9 min  RMSE=9.5 min
+   hist  n=45252  MAE=6.2 min  RMSE=8.7 min
+ALL_DONE Thu Oct  8 04:11:36 HKT 2026

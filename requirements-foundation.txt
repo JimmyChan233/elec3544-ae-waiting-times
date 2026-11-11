@@ -1,0 +1,7 @@
+# separate environment for src/foundation_baseline.py only (Python 3.12.5)
+accelerate==1.15.0
+chronos-forecasting==2.3.2
+numpy==2.5.4
+pandas==3.1.1
+torch==2.15.0
+transformers==5.22.2

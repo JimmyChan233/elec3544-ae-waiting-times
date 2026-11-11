@@ -1,0 +1,15 @@
+rows 584,010  range 2023-01-01 00:00:00 .. 2026-09-30 23:00:00  split 2026-09-01
+
+[regression, cat 4/5 wait (min), new format] horizon 3h  train 135,054 test 12,852
+   pers  n= 12852  MAE=  62.0  RMSE=  82.7
+   hist  n= 12852  MAE=  51.6  RMSE=  69.9
+[classification, wait > 2h, both formats] horizon 3h  train 567,270 test 12,852  base rate 0.529
+   pers  n= 12852  acc=0.729  prec=0.745  rec=0.743  AUC=nan
+   hist  n= 12852  acc=0.618  prec=0.585  rec=0.955  AUC=nan
+
+[regression, cat 4/5 wait (min), new format] horizon 24h  train 119,772 test 12,474
+   pers  n= 12474  MAE=  61.9  RMSE=  86.5
+   hist  n= 12474  MAE=  51.1  RMSE=  69.3
+[classification, wait > 2h, both formats] horizon 24h  train 545,562 test 12,474  base rate 0.529
+   pers  n= 12474  acc=0.734  prec=0.749  rec=0.748  AUC=0.733
+   hist  n= 12474  acc=0.617  prec=0.584  rec=0.956  AUC=0.747

@@ -1,0 +1,205 @@
+grid rows 603,936 (1.7% hours missing a snapshot), range 2023-01-01 00:00:00 .. 2026-10-29 23:00:00
+
+=== REGRESSION cat 4/5 wait (min), H=3 h | train 137,952 val 12,906 test 9,378
+  ridge alpha on val: 0.1->43.68, 1->43.68, 10->43.68, 100->43.69
+  lasso alpha on val: 0.01->43.65, 0.1->43.84, 1->46.44
+  HGB grid on val (MAE): [41.07, 40.88, 41.15] -> {'learning_rate': 0.05, 'max_leaf_nodes': 63}
+  fitted ols_calendar_only in 0s
+  fitted ols in 0s
+  fitted ridge in 0s
+  lasso kept 78/83 coefficients
+  fitted lasso in 1s
+  fitted random_forest in 3s
+  fitted grad_boosting in 17s
+  persistence        val  MAE   61.9  RMSE   82.6  R2  0.361
+  persistence        test MAE   60.0  RMSE   79.0  R2  0.359
+  hist_mean          val  MAE   51.5  RMSE   69.8  R2  0.543
+  hist_mean          test MAE   52.0  RMSE   70.2  R2  0.493
+  ols_calendar_only  val  MAE   59.7  RMSE   77.0  R2  0.444
+  ols_calendar_only  test MAE   59.8  RMSE   76.6  R2  0.398
+  ols                val  MAE   43.7  RMSE   58.1  R2  0.684
+  ols                test MAE   45.0  RMSE   59.6  R2  0.635
+  ridge              val  MAE   43.7  RMSE   58.1  R2  0.684
+  ridge              test MAE   45.0  RMSE   59.6  R2  0.635
+  lasso              val  MAE   43.7  RMSE   58.1  R2  0.684
+  lasso              test MAE   44.9  RMSE   59.5  R2  0.636
+  random_forest      val  MAE   42.7  RMSE   57.0  R2  0.695
+  random_forest      test MAE   43.2  RMSE   58.1  R2  0.653
+  grad_boosting      val  MAE   40.9  RMSE   55.7  R2  0.710
+  grad_boosting      test MAE   41.6  RMSE   56.2  R2  0.675
+  ablation drop calendar  : val MAE 40.88 -> 42.80 (+1.92)
+  ablation drop hospital  : val MAE 40.88 -> 42.41 (+1.53)
+  ablation drop history   : val MAE 40.88 -> 53.84 (+12.96)
+  ablation drop hist_mean : val MAE 40.88 -> 40.78 (-0.10)
+  ablation drop air       : val MAE 40.88 -> 40.75 (-0.13)
+  ablation drop weather   : val MAE 40.88 -> 40.63 (-0.26)
+
+=== CLASSIFICATION wait > 2 h, H=3 h, A_all_eras | train 571,050 (pos 0.70) val 12,906 (pos 0.53) test 9,378 (pos 0.55)
+  fitted logistic in 2s
+  fitted random_forest in 4s
+  fitted grad_boosting in 14s
+  persistence    val  thr 0.5      (0.50) acc 0.730 prec 0.745 rec 0.744 F1 0.744 AUC 0.729
+  persistence    test thr 0.5      (0.50) acc 0.720 prec 0.741 rec 0.750 F1 0.745 AUC 0.717
+  hist_mean      val  thr 0.5      (0.50) acc 0.768 prec 0.742 rec 0.861 F1 0.797 AUC 0.856
+  hist_mean      val  thr val-tuned(0.57) acc 0.775 prec 0.781 rec 0.797 F1 0.789 AUC 0.856
+  hist_mean      test thr 0.5      (0.50) acc 0.754 prec 0.746 rec 0.835 F1 0.788 AUC 0.836
+  hist_mean      test thr val-tuned(0.57) acc 0.752 prec 0.779 rec 0.763 F1 0.771 AUC 0.836
+  logistic       val  thr 0.5      (0.50) acc 0.771 prec 0.774 rec 0.801 F1 0.787 AUC 0.859
+  logistic       val  thr val-tuned(0.58) acc 0.779 prec 0.812 rec 0.757 F1 0.784 AUC 0.859
+  logistic       test thr 0.5      (0.50) acc 0.742 prec 0.740 rec 0.815 F1 0.776 AUC 0.829
+  logistic       test thr val-tuned(0.58) acc 0.747 prec 0.770 rec 0.765 F1 0.768 AUC 0.829
+  random_forest  val  thr 0.5      (0.50) acc 0.811 prec 0.788 rec 0.880 F1 0.831 AUC 0.901
+  random_forest  val  thr val-tuned(0.56) acc 0.816 prec 0.816 rec 0.842 F1 0.829 AUC 0.901
+  random_forest  test thr 0.5      (0.50) acc 0.790 prec 0.775 rec 0.866 F1 0.818 AUC 0.879
+  random_forest  test thr val-tuned(0.56) acc 0.792 prec 0.804 rec 0.819 F1 0.812 AUC 0.879
+  grad_boosting  val  thr 0.5      (0.50) acc 0.825 prec 0.814 rec 0.867 F1 0.840 AUC 0.911
+  grad_boosting  val  thr val-tuned(0.56) acc 0.826 prec 0.836 rec 0.835 F1 0.836 AUC 0.911
+  grad_boosting  test thr 0.5      (0.50) acc 0.800 prec 0.808 rec 0.831 F1 0.820 AUC 0.888
+  grad_boosting  test thr val-tuned(0.56) acc 0.796 prec 0.828 rec 0.790 F1 0.809 AUC 0.888
+  ablation drop calendar  : val AUC 0.9105 -> 0.9018 (-0.0087)
+  ablation drop hospital  : val AUC 0.9105 -> 0.9071 (-0.0034)
+  ablation drop history   : val AUC 0.9105 -> 0.8573 (-0.0532)
+  ablation drop hist_mean : val AUC 0.9105 -> 0.9101 (-0.0004)
+  ablation drop air       : val AUC 0.9105 -> 0.9105 (-0.0000)
+  ablation drop weather   : val AUC 0.9105 -> 0.9109 (+0.0004)
+  ablation drop era       : val AUC 0.9105 -> 0.9020 (-0.0085)
+
+=== CLASSIFICATION wait > 2 h, H=3 h, B_new_only | train 137,952 (pos 0.55) val 12,906 (pos 0.53) test 9,378 (pos 0.55)
+  fitted logistic in 0s
+  fitted random_forest in 3s
+  fitted grad_boosting in 8s
+  logistic       val  thr 0.5      (0.50) acc 0.818 prec 0.809 rec 0.859 F1 0.833 AUC 0.906
+  logistic       val  thr val-tuned(0.56) acc 0.821 prec 0.830 rec 0.833 F1 0.831 AUC 0.906
+  logistic       test thr 0.5      (0.50) acc 0.797 prec 0.798 rec 0.842 F1 0.819 AUC 0.885
+  logistic       test thr val-tuned(0.56) acc 0.796 prec 0.817 rec 0.808 F1 0.812 AUC 0.885
+  random_forest  val  thr 0.5      (0.50) acc 0.818 prec 0.795 rec 0.883 F1 0.837 AUC 0.906
+  random_forest  val  thr val-tuned(0.53) acc 0.820 prec 0.806 rec 0.869 F1 0.836 AUC 0.906
+  random_forest  test thr 0.5      (0.50) acc 0.795 prec 0.794 rec 0.845 F1 0.818 AUC 0.885
+  random_forest  test thr val-tuned(0.53) acc 0.798 prec 0.807 rec 0.828 F1 0.817 AUC 0.885
+  grad_boosting  val  thr 0.5      (0.50) acc 0.825 prec 0.809 rec 0.876 F1 0.841 AUC 0.911
+  grad_boosting  val  thr val-tuned(0.52) acc 0.827 prec 0.816 rec 0.868 F1 0.841 AUC 0.911
+  grad_boosting  test thr 0.5      (0.50) acc 0.802 prec 0.804 rec 0.844 F1 0.824 AUC 0.891
+  grad_boosting  test thr val-tuned(0.52) acc 0.803 prec 0.812 rec 0.832 F1 0.822 AUC 0.891
+
+  test-month MAE by hospital, H=3 (grad boosting vs hist mean):
+    North District Hospital                      54.8 vs   76.9  (mean wait   137)
+    Pamela Youde Nethersole Eastern Hospital     54.4 vs   82.4  (mean wait   170)
+    Princess Margaret Hospital                   53.2 vs   66.3  (mean wait   211)
+    Tuen Mun Hospital                            51.5 vs   72.8  (mean wait   175)
+    Kwong Wah Hospital                           49.8 vs   65.5  (mean wait   261)
+    United Christian Hospital                    45.9 vs   59.0  (mean wait   267)
+    Prince of Wales Hospital                     45.3 vs   57.7  (mean wait   187)
+    Pok Oi Hospital                              43.4 vs   55.2  (mean wait   164)
+    Ruttonjee Hospital                           43.1 vs   47.3  (mean wait   155)
+    Tseung Kwan O Hospital                       43.1 vs   51.7  (mean wait   215)
+    Queen Mary Hospital                          41.5 vs   50.7  (mean wait   156)
+    Tin Shui Wai Hospital                        41.2 vs   50.4  (mean wait   141)
+    Caritas Medical Centre                       39.3 vs   44.7  (mean wait   163)
+    Yan Chai Hospital                            36.1 vs   37.3  (mean wait   165)
+    North Lantau Hospital                        33.8 vs   34.8  (mean wait   101)
+    Queen Elizabeth Hospital                     33.2 vs   36.6  (mean wait   128)
+    Alice Ho Miu Ling Nethersole Hospital        28.1 vs   33.4  (mean wait   106)
+    St John Hospital                             10.6 vs   12.7  (mean wait    22)
+
+=== REGRESSION cat 4/5 wait (min), H=24 h | train 137,952 val 12,906 test 9,378
+  ridge alpha on val: 0.1->49.56, 1->49.56, 10->49.56, 100->49.56
+  lasso alpha on val: 0.01->49.45, 0.1->49.66, 1->50.45
+  HGB grid on val (MAE): [50.15, 50.23, 50.35] -> {'learning_rate': 0.05, 'max_leaf_nodes': 31}
+  fitted ols_calendar_only in 0s
+  fitted ols in 0s
+  fitted ridge in 0s
+  lasso kept 76/83 coefficients
+  fitted lasso in 2s
+  fitted random_forest in 3s
+  fitted grad_boosting in 8s
+  persistence        val  MAE   61.8  RMSE   86.4  R2  0.300
+  persistence        test MAE   61.8  RMSE   87.1  R2  0.220
+  hist_mean          val  MAE   51.5  RMSE   69.8  R2  0.543
+  hist_mean          test MAE   52.0  RMSE   70.2  R2  0.493
+  ols_calendar_only  val  MAE   59.7  RMSE   77.0  R2  0.444
+  ols_calendar_only  test MAE   59.8  RMSE   76.6  R2  0.398
+  ols                val  MAE   49.6  RMSE   66.6  R2  0.584
+  ols                test MAE   52.2  RMSE   69.5  R2  0.504
+  ridge              val  MAE   49.6  RMSE   66.6  R2  0.584
+  ridge              test MAE   52.2  RMSE   69.4  R2  0.504
+  lasso              val  MAE   49.4  RMSE   66.6  R2  0.585
+  lasso              test MAE   52.1  RMSE   69.3  R2  0.506
+  random_forest      val  MAE   50.7  RMSE   67.9  R2  0.567
+  random_forest      test MAE   51.4  RMSE   69.3  R2  0.507
+  grad_boosting      val  MAE   50.1  RMSE   67.7  R2  0.570
+  grad_boosting      test MAE   51.1  RMSE   69.6  R2  0.502
+  ablation drop calendar  : val MAE 50.15 -> 50.80 (+0.65)
+  ablation drop hospital  : val MAE 50.15 -> 50.54 (+0.39)
+  ablation drop history   : val MAE 50.15 -> 53.71 (+3.57)
+  ablation drop hist_mean : val MAE 50.15 -> 50.17 (+0.03)
+  ablation drop air       : val MAE 50.15 -> 50.15 (+0.01)
+  ablation drop weather   : val MAE 50.15 -> 48.78 (-1.37)
+
+=== CLASSIFICATION wait > 2 h, H=24 h, A_all_eras | train 570,672 (pos 0.70) val 12,906 (pos 0.53) test 9,378 (pos 0.55)
+  fitted logistic in 1s
+  fitted random_forest in 4s
+  fitted grad_boosting in 17s
+  persistence    val  thr 0.5      (0.50) acc 0.732 prec 0.748 rec 0.745 F1 0.747 AUC 0.732
+  persistence    test thr 0.5      (0.50) acc 0.717 prec 0.730 rec 0.766 F1 0.748 AUC 0.715
+  hist_mean      val  thr 0.5      (0.50) acc 0.768 prec 0.742 rec 0.861 F1 0.797 AUC 0.856
+  hist_mean      val  thr val-tuned(0.57) acc 0.775 prec 0.781 rec 0.797 F1 0.789 AUC 0.856
+  hist_mean      test thr 0.5      (0.50) acc 0.754 prec 0.746 rec 0.835 F1 0.788 AUC 0.836
+  hist_mean      test thr val-tuned(0.57) acc 0.752 prec 0.779 rec 0.763 F1 0.771 AUC 0.836
+  logistic       val  thr 0.5      (0.50) acc 0.766 prec 0.757 rec 0.820 F1 0.787 AUC 0.846
+  logistic       val  thr val-tuned(0.51) acc 0.766 prec 0.763 rec 0.810 F1 0.786 AUC 0.846
+  logistic       test thr 0.5      (0.50) acc 0.668 prec 0.632 rec 0.939 F1 0.755 AUC 0.786
+  logistic       test thr val-tuned(0.51) acc 0.672 prec 0.636 rec 0.932 F1 0.756 AUC 0.786
+  random_forest  val  thr 0.5      (0.50) acc 0.770 prec 0.732 rec 0.892 F1 0.804 AUC 0.864
+  random_forest  val  thr val-tuned(0.60) acc 0.779 prec 0.772 rec 0.827 F1 0.799 AUC 0.864
+  random_forest  test thr 0.5      (0.50) acc 0.759 prec 0.739 rec 0.864 F1 0.797 AUC 0.840
+  random_forest  test thr val-tuned(0.60) acc 0.754 prec 0.773 rec 0.780 F1 0.776 AUC 0.840
+  grad_boosting  val  thr 0.5      (0.50) acc 0.776 prec 0.743 rec 0.881 F1 0.806 AUC 0.867
+  grad_boosting  val  thr val-tuned(0.61) acc 0.783 prec 0.792 rec 0.799 F1 0.795 AUC 0.867
+  grad_boosting  test thr 0.5      (0.50) acc 0.747 prec 0.722 rec 0.875 F1 0.791 AUC 0.831
+  grad_boosting  test thr val-tuned(0.61) acc 0.752 prec 0.764 rec 0.792 F1 0.778 AUC 0.831
+  ablation drop calendar  : val AUC 0.8669 -> 0.8657 (-0.0012)
+  ablation drop hospital  : val AUC 0.8669 -> 0.8634 (-0.0035)
+  ablation drop history   : val AUC 0.8669 -> 0.8540 (-0.0128)
+  ablation drop hist_mean : val AUC 0.8669 -> 0.8616 (-0.0053)
+  ablation drop air       : val AUC 0.8669 -> 0.8663 (-0.0006)
+  ablation drop weather   : val AUC 0.8669 -> 0.8683 (+0.0015)
+  ablation drop era       : val AUC 0.8669 -> 0.8572 (-0.0097)
+
+=== CLASSIFICATION wait > 2 h, H=24 h, B_new_only | train 137,952 (pos 0.55) val 12,906 (pos 0.53) test 9,378 (pos 0.55)
+  fitted logistic in 0s
+  fitted random_forest in 3s
+  fitted grad_boosting in 8s
+  logistic       val  thr 0.5      (0.50) acc 0.776 prec 0.752 rec 0.860 F1 0.802 AUC 0.866
+  logistic       val  thr val-tuned(0.59) acc 0.780 prec 0.783 rec 0.807 F1 0.795 AUC 0.866
+  logistic       test thr 0.5      (0.50) acc 0.754 prec 0.742 rec 0.844 F1 0.790 AUC 0.843
+  logistic       test thr val-tuned(0.59) acc 0.757 prec 0.770 rec 0.791 F1 0.780 AUC 0.843
+  random_forest  val  thr 0.5      (0.50) acc 0.771 prec 0.734 rec 0.889 F1 0.804 AUC 0.865
+  random_forest  val  thr val-tuned(0.64) acc 0.780 prec 0.797 rec 0.785 F1 0.791 AUC 0.865
+  random_forest  test thr 0.5      (0.50) acc 0.756 prec 0.748 rec 0.836 F1 0.789 AUC 0.839
+  random_forest  test thr val-tuned(0.64) acc 0.745 prec 0.795 rec 0.718 F1 0.755 AUC 0.839
+  grad_boosting  val  thr 0.5      (0.50) acc 0.772 prec 0.736 rec 0.888 F1 0.805 AUC 0.865
+  grad_boosting  val  thr val-tuned(0.57) acc 0.780 prec 0.761 rec 0.853 F1 0.804 AUC 0.865
+  grad_boosting  test thr 0.5      (0.50) acc 0.757 prec 0.745 rec 0.845 F1 0.792 AUC 0.839
+  grad_boosting  test thr val-tuned(0.57) acc 0.757 prec 0.763 rec 0.805 F1 0.784 AUC 0.839
+
+  test-month MAE by hospital, H=24 (grad boosting vs hist mean):
+    Pamela Youde Nethersole Eastern Hospital     79.1 vs   82.4  (mean wait   170)
+    North District Hospital                      72.4 vs   76.9  (mean wait   137)
+    Tuen Mun Hospital                            72.2 vs   72.8  (mean wait   175)
+    Princess Margaret Hospital                   64.8 vs   66.3  (mean wait   211)
+    Kwong Wah Hospital                           63.1 vs   65.5  (mean wait   261)
+    Prince of Wales Hospital                     57.8 vs   57.7  (mean wait   187)
+    United Christian Hospital                    57.7 vs   59.0  (mean wait   267)
+    Pok Oi Hospital                              57.4 vs   55.2  (mean wait   164)
+    Tin Shui Wai Hospital                        51.9 vs   50.4  (mean wait   141)
+    Queen Mary Hospital                          50.9 vs   50.7  (mean wait   156)
+    Tseung Kwan O Hospital                       49.9 vs   51.7  (mean wait   215)
+    Ruttonjee Hospital                           48.5 vs   47.3  (mean wait   155)
+    Caritas Medical Centre                       42.7 vs   44.7  (mean wait   163)
+    Queen Elizabeth Hospital                     37.0 vs   36.6  (mean wait   128)
+    Yan Chai Hospital                            36.7 vs   37.3  (mean wait   165)
+    North Lantau Hospital                        35.7 vs   34.8  (mean wait   101)
+    Alice Ho Miu Ling Nethersole Hospital        32.5 vs   33.4  (mean wait   106)
+    St John Hospital                             10.0 vs   12.7  (mean wait    22)
+
+wrote results/models_2026-10-30_*.csv / _summary.txt
