@@ -1,5 +1,5 @@
 3 h ahead, 1-10 Nov 2026, frozen model | MAE model 39.47, hist 53.18
-pairwise 'which hospital is quicker in 3 h' over 25,529 hospital-pair hours with an actual gap >= 30 min:
-  model      correct 0.815
-  hist_mean  correct 0.740
-  wait_now   correct 0.693
+pairwise 'which hospital is quicker in 3 h' over 24,855 hospital-pair hours with an actual gap >= 30 min (all methods available; ties count as half):
+  model      correct 0.8157   (ties 0.0%)
+  hist_mean  correct 0.7415   (ties 0.3%)
+  wait_now   correct 0.7693   (ties 11.6%)

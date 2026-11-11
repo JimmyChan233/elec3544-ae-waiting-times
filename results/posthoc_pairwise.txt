@@ -1,5 +1,6 @@
-pairwise 3 h, 1-10 Nov, 25,529 pair-hours (rule weight 0.618; rule MAE 41.18):
-  model      correct 0.815
-  rule       correct 0.812
-  hist_mean  correct 0.740
-  wait_now   correct 0.693
+rule weight 0.618; rule MAE 41.18
+pairwise 'which hospital is quicker in 3 h' over 24,855 hospital-pair hours with an actual gap >= 30 min (all methods available; ties count as half):
+  model      correct 0.8157   (ties 0.0%)
+  rule       correct 0.8133   (ties 0.0%)
+  hist_mean  correct 0.7415   (ties 0.3%)
+  wait_now   correct 0.7693   (ties 11.6%)

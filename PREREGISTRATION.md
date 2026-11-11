@@ -41,7 +41,13 @@ On target hours from 11 November 00:00 to 15 November 23:00 that have an archive
 - **24 hours:** slow-history boosting and the one-line rule differ by less than 1.5 minutes either way.
 - **Chronos-Bolt at 3 hours** lands between the one-line rule and gradient boosting, or within 1 minute of either.
 - **Ranges:** quantile boosting covers 70–80 % (too narrow); Chronos-Bolt covers 75–85 %.
-- **Pairwise:** rule and model within 2 percentage points of each other, both at least 8 points above the board.
+- **Pairwise:** rule and model within 2 percentage points of each other, both at least 2 points above the board.
 
 Five days is a small sample. If the archive is missing days in this window, we score the days that exist
 and say how many there were.
+
+## Amendment, 11 November 2026 (before any 11–15 November data existed)
+
+The pairwise check now scores every method on the same pair-hours and counts a tie as half; an earlier version
+counted ties on the board as misses. On 1–10 November this moves the board from 69% to 77%, so the pairwise
+expectation above was changed from "at least 8 points above the board" to "at least 2 points". Nothing else changed.

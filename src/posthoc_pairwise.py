@@ -23,15 +23,7 @@ nov = D[D.ts_f >= NOV].copy()
 nov["rule"] = (nov.r_f + b * nov.anom).fillna(nov.r_f).fillna(nov["hist"])
 p = pd.read_csv("results/live_nov_predictions_3h.csv", parse_dates=["target_hour"])
 p = p.merge(nov[["hospital", "ts_f", "rule"]].rename(columns={"ts_f": "target_hour"}), on=["hospital", "target_hour"])
-W = {c: p.pivot(index="target_hour", columns="hospital", values=c) for c in ("actual", "model", "hist_mean", "wait_now", "rule")}
-hit = {m: 0 for m in ("model", "rule", "hist_mean", "wait_now")}; n = 0
-for a, c in itertools.combinations(W["actual"].columns, 2):
-    d = W["actual"][a] - W["actual"][c]; okp = d.abs() >= 30
-    for m in hit:
-        dm = W[m][a] - W[m][c]; use = okp & dm.notna()
-        if m == "model":
-            n += int(use.sum())
-        hit[m] += int(((np.sign(dm) == np.sign(d)) & use).sum())
-lines = [f"pairwise 3 h, 1-10 Nov, {n:,} pair-hours (rule weight {b:.3f}; rule MAE {np.abs(p.actual - p.rule).mean():.2f}):"] + [f"  {m:10s} correct {hit[m] / n:.3f}" for m in hit]
+from live_predictions import pairwise  # noqa: E402
+lines = [f"rule weight {b:.3f}; rule MAE {np.abs(p.actual - p.rule).mean():.2f}"] + pairwise(p, ("model", "rule", "hist_mean", "wait_now"))
 open("results/posthoc_pairwise.txt", "w").write("\n".join(lines) + "\n")
 print("\n".join(lines))

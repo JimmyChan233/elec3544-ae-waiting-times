@@ -14,6 +14,22 @@ import train_models as tm  # noqa: E402
 from live_test import HGB_REG, NOV  # noqa: E402
 
 
+def pairwise(out, methods, min_gap=30):
+    W = {c: out.pivot(index="target_hour", columns="hospital", values=c) for c in ("actual",) + tuple(methods)}
+    hit = {m: 0.0 for m in methods}; ties = {m: 0 for m in methods}; n = 0
+    for a, b in itertools.combinations(W["actual"].columns, 2):
+        d = W["actual"][a] - W["actual"][b]
+        diffs = {m: W[m][a] - W[m][b] for m in methods}
+        use = (d.abs() >= min_gap) & pd.concat(diffs, axis=1).notna().all(axis=1)
+        n += int(use.sum())
+        for m, dm in diffs.items():
+            hit[m] += float(((np.sign(dm) == np.sign(d)) & use).sum()) + 0.5 * float(((dm == 0) & use).sum())
+            ties[m] += int(((dm == 0) & use).sum())
+    lines = [f"pairwise 'which hospital is quicker in 3 h' over {n:,} hospital-pair hours with an actual gap >= {min_gap} min "
+             f"(all methods available; ties count as half):"]
+    return lines + [f"  {m:10s} correct {hit[m] / n:.4f}   (ties {ties[m] / n:.1%})" for m in methods]
+
+
 def main():
     for g in ("weather", "air"):
         tm.GROUPS.pop(g)
@@ -31,23 +47,10 @@ def main():
     out.to_csv("results/live_nov_predictions_3h.csv", index=False)
 
     # Pairwise check: for every pair of hospitals and every target hour where the actual waits differ by >= 30 min,
-    # does each method name the hospital that really turned out quicker?
-    W = {c: out.pivot(index="target_hour", columns="hospital", values=c) for c in ("actual", "model", "hist_mean", "wait_now")}
-    hit = {m: 0 for m in ("model", "hist_mean", "wait_now")}
-    n = 0
-    for a, b in itertools.combinations(W["actual"].columns, 2):
-        d = W["actual"][a] - W["actual"][b]
-        ok = d.abs() >= 30
-        for m in hit:
-            dm = W[m][a] - W[m][b]
-            use = ok & dm.notna()
-            if m == "model":
-                n += int(use.sum())
-            hit[m] += int(((np.sign(dm) == np.sign(d)) & use).sum())
+    # does each method name the hospital that really turned out quicker? Scored on the pair-hours where every
+    # method has a value; a tie (the method rates both hospitals the same) counts as half, like a coin flip.
     lines = [f"3 h ahead, 1-10 Nov 2026, frozen model | MAE model {np.abs(out.actual - out.model).mean():.2f}, "
-             f"hist {np.abs(out.actual - out.hist_mean).mean():.2f}",
-             f"pairwise 'which hospital is quicker in 3 h' over {n:,} hospital-pair hours with an actual gap >= 30 min:"]
-    lines += [f"  {m:10s} correct {hit[m] / n:.3f}" for m in hit]
+             f"hist {np.abs(out.actual - out.hist_mean).mean():.2f}"] + pairwise(out, ("model", "hist_mean", "wait_now"))
     open("results/live_nov_pairwise.txt", "w").write("\n".join(lines) + "\n")
     print("\n".join(lines))
 
