@@ -169,7 +169,7 @@ An independent review of our draft asked whether the historical mean, a ten-mont
 
 # Author Contributions {{.unnumbered}}
 
-| Member | Specific work | Evidence / outputs |
+| Member name | Specific contributions | Evidence or output |
 |-------------|------------------------------------------------|--------------------------------|
 | CHEN Hongxi | Data sourcing and archive download; parsing and cleaning; feature pipeline; baselines and first models; November live test; post-hoc baseline checks and the foundation-model baseline (Section 5.4); integration of the report and slides | `download_ae_archive.py`, `parse_ae.py`, `build_features.py`, `train_models.py`, `live_test.py`, `posthoc_checks.py`, `foundation_baseline.py` |
 | NI Haoran | 24-hour forecasting experiments: residual-target modelling, slower-history features and prediction shrinkage. Reviewed the experiment code and the validation and test outputs, compared the selected approach with the historical-mean baseline, and examined the limits of the observed improvement | `ni_24h_experiments.py`, `hn_24h_*.csv` |
