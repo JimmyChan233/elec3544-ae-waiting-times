@@ -42,6 +42,7 @@ def main():
     ap.add_argument("--prefix", default="results/models_2026-10-30_v2")
     ap.add_argument("--v1", default="results/models_2026-10-30")
     ap.add_argument("--zip", default=str(ROOT.parent / "Assignments" / "Share" / "Group16-Project-data.zip"))
+    ap.add_argument("--official", action="store_true", help="build in the official course LaTeX template")
     a = ap.parse_args()
     N = br.numbers(a)
     f1, f3 = br.f1, br.f3
@@ -180,6 +181,9 @@ def main():
         log = log.replace(a_, b_)
     N["exp_log"] = log[log.index("| Date"):].replace("|---|---|---|---|---|", "|------|------------------|------------------|--------------------|-----------|")
 
+    if a.official:
+        import build_official
+        return build_official.build(N, ROOT, OUT)
     text = (ROOT / "report/report_final.md").read_text().format_map(N)
     OUT.mkdir(parents=True, exist_ok=True)
     md = OUT / "ELEC3544-Report-Group16.md"

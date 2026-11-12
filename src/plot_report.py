@@ -74,7 +74,7 @@ def fig_november():
         ax.bar(x - 0.2, g.ae_hist_mean, width=0.38, color=GREY, label="Historical mean (baseline)")
         ax.bar(x + 0.2, g[col], width=0.38, color=BLUE if H == 3 else TAN, label=name)
         ax.set_xticks(x, [t.strftime("%-d") for t in g.ts_f]); ax.set_xlabel("Day of November 2026"); tidy(ax)
-        ax.set(title=f"{H} h ahead", ylim=(0, 75)); ax.legend(fontsize=8.5, frameon=False, loc="upper left", ncol=2)
+        ax.set(title=f"{H} h ahead", ylim=(0, 95)); ax.legend(fontsize=8.5, frameon=False, loc="upper left", ncol=1)
     axes[0].set_ylabel("MAE on that day (minutes)")
     fig.tight_layout(); fig.savefig("results/report_fig_november.png", bbox_inches="tight"); plt.close(fig)
 

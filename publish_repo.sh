@@ -7,10 +7,11 @@ DEST="$HOME/elec3544_data/repo"
 mkdir -p "$DEST"
 rsync -a --delete --exclude '.git' --exclude '.DS_Store' --exclude '__pycache__' --exclude '.pytest_cache' \
   --exclude 'notebooks' --exclude 'data/processed' --exclude 'data/raw/ae' --exclude 'data/raw/aux/_old*' \
-  --exclude 'results/review_packet.md' --exclude 'report/report_template.md' --exclude 'report/build_report.py.bak' \
+  --exclude 'results/review_packet.md' --exclude 'report/report_template.md' --exclude 'report/template' \
   ./ "$DEST/"
 # names stay, student numbers do not go into a public repository
-sed -i '' -E 's/ \(30[0-9]{8}\)//g' "$DEST/report/report_final.md"
+sed -i '' -E 's/ \(30[0-9]{8}\)//g' "$DEST/report/report_final.md" "$DEST/report/report_official.md" "$DEST/report/build_official.py"
+printf 'The course style file elec3544_report.sty is not redistributed here. Take it from the ELEC3544 report template on Moodle and put it in this folder before running report/build_final.py --official.\n' > "$DEST/report/template-README.txt"
 cat > "$DEST/.gitignore" <<'G'
 __pycache__/
 .pytest_cache/

@@ -31,8 +31,9 @@ cat > "$OUT/README.md" <<EOF
 Built $(date "+%d %b %Y %H:%M"). Everything here is a copy; edit the sources, then run \`Project/make_submission.sh\` again.
 
 ## 1-Upload-to-Moodle
-Each member uploads **both** PDFs to "Group Project Report and Slides" by **Tue 17 Nov 2026, 23:59**.
-- \`ELEC3544-Report-Group16.pdf\`: the report, $(pdfinfo "$A/Report/ELEC3544-Report-Group16.pdf" | awk '/Pages/{print $2}') pages (limit 8).
+Each member uploads **both** PDFs to "Group Project Report and Slides" by **Tue 17 Nov 2026, 23:59**. This version is for peer review during the presentations.
+The graded report is the one uploaded to "Final Project Report" by **Mon 30 Nov 2026, 23:59**; it can be revised after the feedback.
+- \`ELEC3544-Report-Group16.pdf\`: the report in the official course LaTeX template: 8 pages of main report (the limit), then 2 pages of Supplementary Materials, which do not count.
 - \`ELEC3544-Slides-Group16.pdf\`: the slides, 14 main + 3 backup.
 
 ## 2-Presentation
@@ -52,7 +53,7 @@ Wed 18 Nov 2026, 16:45-16:55, CPD-1.21. Ten-minute hard cutoff; every member spe
 The brief, the rubric, the timetable and our proposal.
 
 ## Where the sources are
-- Report text: \`Project/report/report_final.md\`, built by \`Project/report/build_final.py\`.
+- Report text: \`Project/report/report_official.md\`, built by \`python3 report/build_final.py --official\` (official course template).
 - Slides: \`Assignments/Slides/build_deck.py\`, rendered by \`Assignments/Slides/render.sh\`.
 - Script: \`Assignments/Slides/presentation-script.md\`.
 EOF
