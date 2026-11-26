@@ -1,0 +1,12 @@
+[prereg_11_15] 3 h ahead blind test | MAE model 41.43, rule 45.52, hist 60.60
+pairwise 'which hospital is quicker in 3 h' over 12,432 hospital-pair hours with an actual gap >= 30 min (all methods available; ties count as half):
+  model      correct 0.8176   (ties 0.0%)
+  rule       correct 0.8058   (ties 0.0%)
+  hist_mean  correct 0.7061   (ties 0.3%)
+  wait_now   correct 0.7714   (ties 12.0%)
+[ext_11_25] 3 h ahead blind test | MAE model 39.23, rule 41.46, hist 60.18
+pairwise 'which hospital is quicker in 3 h' over 44,171 hospital-pair hours with an actual gap >= 30 min (all methods available; ties count as half):
+  model      correct 0.8162   (ties 0.0%)
+  rule       correct 0.8072   (ties 0.0%)
+  hist_mean  correct 0.7249   (ties 0.3%)
+  wait_now   correct 0.7676   (ties 12.4%)

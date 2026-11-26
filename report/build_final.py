@@ -142,49 +142,69 @@ def main():
              pw_model=f"{float(re.search(r'model\s+correct ([\d.]+)', pwt).group(1)):.0%}",
              w3_live=("all " if (d3.ae_grad_boosting < d3.ae_hist_mean).all() else f"{int((d3.ae_grad_boosting < d3.ae_hist_mean).sum())} of ") + str(len(d3)),
              w24_live=f"{int((d24.ae_gb_slow_history < d24.ae_hist_mean).sum())} of {len(d24)}")
-    # --- pre-registered blind test (11-15 Nov 2026)
-    Bm = pd.read_csv(ROOT / "results/blind_nov11_15_metrics.csv")
-    BF = pd.read_csv(ROOT / "results/blind_nov11_15_foundation_metrics.csv").set_index("H")
-    bpw = (ROOT / "results/blind_nov11_15_pairwise.txt").read_text()
+    # --- pre-registered (11-15 Nov) & extended (11-25 Nov) blind test
+    Bm = pd.read_csv(ROOT / "results/blind_nov_metrics.csv")
+    BF = pd.read_csv(ROOT / "results/blind_nov_foundation_metrics.csv").set_index(["H", "period"])
+    bpw = (ROOT / "results/blind_nov_pairwise.txt").read_text()
+    prereg_pw_txt, ext_pw_txt = bpw.split("[ext_11_25]")
 
-    def bv(H, model, col="MAE"):
-        return Bm[(Bm.H == H) & (Bm.model == model)][col].iloc[0]
+    def bv(H, period, model, col="MAE"):
+        return Bm[(Bm.H == H) & (Bm.period == period) & (Bm.model == model)][col].iloc[0]
 
-    def bci(H, model):
-        return f"{pm(bv(H, model, 'ci_lo'))} to {pm(bv(H, model, 'ci_hi'))}"
+    def bci(H, period, model):
+        return f"{pm(bv(H, period, model, 'ci_lo'))} to {pm(bv(H, period, model, 'ci_hi'))}"
 
     N.update(
-        blind_n=f"{int(bv(3, 'hist_mean', 'n')):,}",
-        blind_hm=f1(bv(3, "hist_mean")),
-        r3_blind=f1(bv(3, "level_anomaly")),
-        r24_blind=f1(bv(24, "level_anomaly")),
-        gb3_blind=f1(bv(3, "grad_boosting")),
-        s24_blind_mae=f1(bv(24, "gb_slow_history")),
-        g3_blind=f1(-bv(3, "grad_boosting_minus_level_anomaly")),
-        g3_blind_ci=bci(3, "grad_boosting_minus_level_anomaly"),
-        w3_blind=f"{int(bv(3, 'grad_boosting_minus_level_anomaly', 'wins'))} of {int(bv(3, 'grad_boosting_minus_level_anomaly', 'n_days'))}",
-        s24_blind_diff=pm(bv(24, "gb_slow_history_minus_level_anomaly")),
-        s24_blind_ci=bci(24, "gb_slow_history_minus_level_anomaly"),
-        w24_blind=f"{int(bv(24, 'gb_slow_history_minus_level_anomaly', 'wins'))} of {int(bv(24, 'gb_slow_history_minus_level_anomaly', 'n_days'))}",
-        fm3_blind=f1(BF.loc[3, "MAE"]),
-        fm24_blind=f1(BF.loc[24, "MAE"]),
-        fmc3_blind=f"{BF.loc[3, 'coverage']:.0%}",
-        fmc24_blind=f"{BF.loc[24, 'coverage']:.0%}",
-        qc3_blind=f"{bv(3, 'quantile_10_90', 'coverage'):.0%}",
-        qw3_blind=round(bv(3, "quantile_10_90", "width")),
-        qc24_blind=f"{bv(24, 'quantile_10_90', 'coverage'):.0%}",
-        pw_blind_n=re.search(r"over ([\d,]+) hospital-pair", bpw).group(1),
-        pw_blind_model=f"{float(re.search(r'model\s+correct ([\d.]+)', bpw).group(1)):.0%}",
-        pw_blind_rule=f"{float(re.search(r'rule\s+correct ([\d.]+)', bpw).group(1)):.0%}",
-        pw_blind_hist=f"{float(re.search(r'hist_mean\s+correct ([\d.]+)', bpw).group(1)):.0%}",
-        pw_blind_now=f"{float(re.search(r'wait_now\s+correct ([\d.]+)', bpw).group(1)):.0%}",
+        prereg_n=f"{int(bv(3, 'prereg_11_15', 'hist_mean', 'n')):,}",
+        ext_n=f"{int(bv(3, 'ext_11_25', 'hist_mean', 'n')):,}",
+        prereg_hm=f1(bv(3, "prereg_11_15", "hist_mean")),
+        ext_hm=f1(bv(3, "ext_11_25", "hist_mean")),
+        r3_prereg=f1(bv(3, "prereg_11_15", "level_anomaly")),
+        r3_ext=f1(bv(3, "ext_11_25", "level_anomaly")),
+        r24_prereg=f1(bv(24, "prereg_11_15", "level_anomaly")),
+        r24_ext=f1(bv(24, "ext_11_25", "level_anomaly")),
+        gb3_prereg=f1(bv(3, "prereg_11_15", "grad_boosting")),
+        gb3_ext=f1(bv(3, "ext_11_25", "grad_boosting")),
+        s24_prereg_mae=f1(bv(24, "prereg_11_15", "gb_slow_history")),
+        s24_ext_mae=f1(bv(24, "ext_11_25", "gb_slow_history")),
+        g3_prereg=f1(-bv(3, "prereg_11_15", "grad_boosting_minus_level_anomaly")),
+        g3_prereg_ci=bci(3, "prereg_11_15", "grad_boosting_minus_level_anomaly"),
+        w3_prereg=f"{int(bv(3, 'prereg_11_15', 'grad_boosting_minus_level_anomaly', 'wins'))} of {int(bv(3, 'prereg_11_15', 'grad_boosting_minus_level_anomaly', 'n_days'))}",
+        g3_ext=f1(-bv(3, "ext_11_25", "grad_boosting_minus_level_anomaly")),
+        g3_ext_ci=bci(3, "ext_11_25", "grad_boosting_minus_level_anomaly"),
+        w3_ext=f"{int(bv(3, 'ext_11_25', 'grad_boosting_minus_level_anomaly', 'wins'))} of {int(bv(3, 'ext_11_25', 'grad_boosting_minus_level_anomaly', 'n_days'))}",
+        s24_prereg_diff=pm(bv(24, "prereg_11_15", "gb_slow_history_minus_level_anomaly")),
+        s24_prereg_ci=bci(24, "prereg_11_15", "gb_slow_history_minus_level_anomaly"),
+        w24_prereg=f"{int(bv(24, 'prereg_11_15', 'gb_slow_history_minus_level_anomaly', 'wins'))} of {int(bv(24, 'prereg_11_15', 'gb_slow_history_minus_level_anomaly', 'n_days'))}",
+        s24_ext_diff=pm(bv(24, "ext_11_25", "gb_slow_history_minus_level_anomaly")),
+        s24_ext_ci=bci(24, "ext_11_25", "gb_slow_history_minus_level_anomaly"),
+        w24_ext=f"{int(bv(24, 'ext_11_25', 'gb_slow_history_minus_level_anomaly', 'wins'))} of {int(bv(24, 'ext_11_25', 'gb_slow_history_minus_level_anomaly', 'n_days'))}",
+        fm3_prereg=f1(BF.loc[(3, "prereg_11_15"), "MAE"]),
+        fm24_prereg=f1(BF.loc[(24, "prereg_11_15"), "MAE"]),
+        fmc3_prereg=f"{BF.loc[(3, 'prereg_11_15'), 'coverage']:.0%}",
+        fmc24_prereg=f"{BF.loc[(24, 'prereg_11_15'), 'coverage']:.0%}",
+        fm3_ext=f1(BF.loc[(3, "ext_11_25"), "MAE"]),
+        fm24_ext=f1(BF.loc[(24, "ext_11_25"), "MAE"]),
+        fmc3_ext=f"{BF.loc[(3, 'ext_11_25'), 'coverage']:.0%}",
+        fmc24_ext=f"{BF.loc[(24, 'ext_11_25'), 'coverage']:.0%}",
+        fmw3_ext=round(BF.loc[(3, "ext_11_25"), "width"]),
+        qc3_prereg=f"{bv(3, 'prereg_11_15', 'quantile_10_90', 'coverage'):.0%}",
+        qc3_ext=f"{bv(3, 'ext_11_25', 'quantile_10_90', 'coverage'):.0%}",
+        qw3_ext=round(bv(3, "ext_11_25", "quantile_10_90", "width")),
+        pw_prereg_model=f"{float(re.search(r'model\s+correct ([\d.]+)', prereg_pw_txt).group(1)):.0%}",
+        pw_prereg_rule=f"{float(re.search(r'rule\s+correct ([\d.]+)', prereg_pw_txt).group(1)):.0%}",
+        pw_prereg_now=f"{float(re.search(r'wait_now\s+correct ([\d.]+)', prereg_pw_txt).group(1)):.0%}",
+        pw_ext_n=re.search(r"over ([\d,]+) hospital-pair", ext_pw_txt).group(1),
+        pw_ext_model=f"{float(re.search(r'model\s+correct ([\d.]+)', ext_pw_txt).group(1)):.0%}",
+        pw_ext_rule=f"{float(re.search(r'rule\s+correct ([\d.]+)', ext_pw_txt).group(1)):.0%}",
+        pw_ext_now=f"{float(re.search(r'wait_now\s+correct ([\d.]+)', ext_pw_txt).group(1)):.0%}",
     )
 
     prow = []
     for key, name in (("hist_mean", "Historical mean (original baseline)"), ("rolling28", "Rule: 28-day mean, same clock hour"), ("damped_anomaly", "Rule: historical mean + damped anomaly"),
                       ("level_anomaly", "Rule: 28-day mean + damped anomaly"), ("decision_tree", "Decision tree"), ("grad_boosting", "Gradient boosting (frozen model)"),
                       ("gb_slow_history", "Gradient boosting + slow history"), ("gb_level", "Gradient boosting + level features")):
-        prow.append([name] + [f1(pv(H, per, key)) for H in (3, 24) for per in ("oct", "nov")] )
+        prow.append([name] + [f1(pv(H, per, key)) for H in (3, 24) for per in ("oct", "nov")])
     F = pd.read_csv(ROOT / "results/foundation_metrics.csv").set_index(["H", "period"])
     FP = pd.read_csv(ROOT / "results/foundation_predictions.csv", parse_dates=["target_hour"])
     G3 = pd.read_csv(ROOT / "results/live_nov_predictions_3h.csv", parse_dates=["target_hour"])
@@ -194,39 +214,43 @@ def main():
              fmc_oct=f"{F.loc[(3, 'oct'), 'coverage']:.0%}", fmc_nov=f"{F.loc[(3, 'nov'), 'coverage']:.0%}",
              fm_gap="1 to 2", fm_days=f"{int((dd.ae < dd.ae_gb).sum())} of {len(dd)}")
     prow.insert(5, ["Chronos-Bolt, zero-shot [10]"] + [f1(F.loc[(H, per), "MAE"]) for H in (3, 24) for per in ("oct", "nov")])
-    # Insert Blind columns into Table 3: [name, 3h Oct, 3h Nov, 3h Blind, 24h Oct, 24h Nov, 24h Blind]
     blind_keys = ("hist_mean", "rolling28", "damped_anomaly", "level_anomaly", "decision_tree",
                   "chronos", "grad_boosting", "gb_slow_history", "gb_level")
     for r, key in zip(prow, blind_keys):
-        b3v = f1(BF.loc[3, "MAE"]) if key == "chronos" else f1(bv(3, key))
-        b24v = f1(BF.loc[24, "MAE"]) if key == "chronos" else f1(bv(24, key))
+        b3v = f1(BF.loc[(3, "ext_11_25"), "MAE"]) if key == "chronos" else f1(bv(3, "ext_11_25", key))
+        b24v = f1(BF.loc[(24, "ext_11_25"), "MAE"]) if key == "chronos" else f1(bv(24, "ext_11_25", key))
         r[:] = [r[0], r[1], r[2], b3v, r[3], r[4], b24v]
     N["table_post"] = br.md_table(["Method (trained before Sep 2026)", "3 h Oct", "3 h Nov", "3 h Blind", "24 h Oct", "24 h Nov", "24 h Blind"], prow) + \
-        "\n\n: Post-hoc (complete Oct, 1–10 Nov) and pre-registered blind (12–15 Nov) MAE in minutes.\n"
+        "\n\n: Post-hoc (complete Oct, 1–10 Nov) and post-freeze blind (12–25 Nov, 14 days) MAE in minutes.\n"
 
     prereg_rows = [
         ["3 h: GB beats rule by 1–3 min, wins most days",
-         f"GB {N['gb3_blind']} vs rule {N['r3_blind']} ({N['g3_blind']} min better, CI {N['g3_blind_ci']}, {N['w3_blind']} days)",
-         "Confirmed (stronger)"],
-        ["24 h: slow-history GB within 1.5 min of rule",
-         f"Slow GB {N['s24_blind_mae']} vs rule {N['r24_blind']} ({N['s24_blind_diff']} min, CI {N['s24_blind_ci']}, {N['w24_blind']} days)",
+         f"{N['gb3_prereg']} vs {N['r3_prereg']} (−{N['g3_prereg']}, CI {N['g3_prereg_ci']}, {N['w3_prereg']} d)",
+         f"{N['gb3_ext']} vs {N['r3_ext']} (−{N['g3_ext']}, CI {N['g3_ext_ci']}, {N['w3_ext']} d)",
          "Confirmed"],
-        ["3 h Chronos-Bolt between rule and GB (or within 1 min)",
-         f"Chronos {N['fm3_blind']} vs GB {N['gb3_blind']} and rule {N['r3_blind']} (24 h: {N['fm24_blind']})",
+        ["24 h: slow GB within 1.5 min of rule",
+         f"{N['s24_prereg_mae']} vs {N['r24_prereg']} ({N['s24_prereg_diff']}, CI {N['s24_prereg_ci']}, {N['w24_prereg']} d)",
+         f"{N['s24_ext_mae']} vs {N['r24_ext']} ({N['s24_ext_diff']}, CI {N['s24_ext_ci']}, {N['w24_ext']} d)",
+         "Confirmed"],
+        ["3 h Chronos-Bolt within 1 min or between",
+         f"{N['fm3_prereg']} (GB {N['gb3_prereg']}, rule {N['r3_prereg']}; 24 h {N['fm24_prereg']})",
+         f"{N['fm3_ext']} (GB {N['gb3_ext']}, rule {N['r3_ext']}; 24 h {N['fm24_ext']})",
          "Confirmed"],
         ["10–90% coverage: GB 70–80%; Chronos 75–85%",
-         f"GB {N['qc3_blind']} (width {N['qw3_blind']} min); Chronos {N['fmc3_blind']} (24 h: {N['fmc24_blind']})",
-         "Chronos confirmed; GB slightly under (69.6%)"],
-        ["3 h pairwise: rule & GB within 2 pp, both ≥2 pp above board",
-         f"GB {N['pw_blind_model']}, rule {N['pw_blind_rule']}, board {N['pw_blind_now']} ({N['pw_blind_n']} pairs)",
+         f"GB {N['qc3_prereg']} (69.6%); Chronos {N['fmc3_prereg']}",
+         f"GB {N['qc3_ext']}; Chronos {N['fmc3_ext']} (24 h {N['fmc24_ext']})",
+         "Confirmed on 14 d (GB 69.6% on 4 d)"],
+        ["3 h pairwise: rule & GB within 2 pp, ≥2 pp > board",
+         f"GB {N['pw_prereg_model']}, rule {N['pw_prereg_rule']}, board {N['pw_prereg_now']}",
+         f"GB {N['pw_ext_model']}, rule {N['pw_ext_rule']}, board {N['pw_ext_now']} ({N['pw_ext_n']} pairs)",
          "Confirmed"],
     ]
-    prereg_hdr = ["Pre-registered expectation (11 Nov)", "Observed (12–15 Nov, n = 1,728)", "Verdict"]
+    prereg_hdr = ["Pre-registered expectation (11 Nov)", "Pre-reg 12–15 Nov (4 d)", "Extended 12–25 Nov (14 d)", "Verdict"]
     N["table_prereg"] = "\n".join([
         "| " + " | ".join(prereg_hdr) + " |",
-        "|" + "-" * 34 + "|" + "-" * 38 + "|" + "-" * 22 + "|",
+        "|" + "-" * 28 + "|" + "-" * 28 + "|" + "-" * 28 + "|" + "-" * 18 + "|",
         *["| " + " | ".join(str(c) for c in r) + " |" for r in prereg_rows],
-    ]) + "\n\n: Pre-registered blind test scorecard against expectations fixed in `PREREGISTRATION.md` on 11 November.\n"
+    ]) + "\n\n: Blind-test scorecard against expectations fixed in `PREREGISTRATION.md` on 11 November.\n"
     # Table 2 with precision and recall (the proposal promised them)
     mm = pd.read_csv(ROOT / f"{a.prefix}_metrics.csv")
 

@@ -5,12 +5,12 @@ HKU ELEC3544 (Data Science with Foundation Models), Fall 2026. Chen Hongxi, Ni H
 We forecast the waiting time for semi-urgent and non-urgent patients at Hong Kong's 18 public A&E departments,
 3 hours and 24 hours ahead, from the Hospital Authority's open-data feed rebuilt through the data.gov.hk archive.
 
-| Mean absolute error, minutes | 3 h, Oct 2026 | 3 h, 1–10 Nov | 3 h, 12–15 Nov (blind) | 24 h, Oct | 24 h, 1–10 Nov | 24 h, 12–15 Nov (blind) |
+| Mean absolute error, minutes | 3 h, Oct 2026 | 3 h, 1–10 Nov | 3 h, 12–25 Nov (blind) | 24 h, Oct | 24 h, 1–10 Nov | 24 h, 12–25 Nov (blind) |
 |---|---|---|---|---|---|---|
-| Historical mean (hospital × weekday × hour) | 51.8 | 53.2 | 60.6 | 51.8 | 53.2 | 60.6 |
-| One-line rule (28-day level + damped anomaly) | 43.4 | 41.2 | 45.5 | 50.4 | 47.9 | 52.5 |
-| Chronos-Bolt, zero-shot | 42.8 | 40.5 | 41.4 | 52.0 | 50.3 | 49.3 |
-| Gradient boosting (ours) | 41.1 | 39.5 | 41.4 | 50.2 | 47.4 | 52.0 |
+| Historical mean (hospital × weekday × hour) | 51.8 | 53.2 | 60.2 | 51.8 | 53.2 | 60.2 |
+| One-line rule (28-day level + damped anomaly) | 43.4 | 41.2 | 41.5 | 50.4 | 47.9 | 47.9 |
+| Chronos-Bolt, zero-shot | 42.8 | 40.5 | 39.2 | 52.0 | 50.3 | 47.0 |
+| Gradient boosting (ours) | 41.1 | 39.5 | 39.2 | 50.2 | 47.4 | 48.9 |
 
 Short version: the wait three hours ahead is predictable, most of the gain is available to a one-parameter rule,
 gradient boosting adds about two minutes, and a day ahead nothing we built beats the rule.
@@ -43,8 +43,8 @@ src/live_predictions.py     -> per-hour 3 h forecasts for November and the 'whic
 src/posthoc_checks.py       -> stronger one-parameter baselines, decision tree, level features, quantile ranges (after the live test)
 src/posthoc_pairwise.py     -> pairwise hospital check for the best simple rule
 src/foundation_baseline.py  -> zero-shot Chronos-Bolt baseline (separate env: requirements-foundation.txt)
-src/blind_test_nov11_15.py   -> pre-registered 11-15 Nov blind test (results/blind_nov11_15_*)
-src/blind_foundation_nov11_15.py -> zero-shot Chronos-Bolt on the 11-15 Nov blind window
+src/blind_test_nov.py         -> 11-25 Nov blind test & 11-15 pre-reg subset (results/blind_nov_*)
+src/blind_foundation_nov.py   -> zero-shot Chronos-Bolt on the 11-25 Nov blind window
 src/plot_report.py           -> figures for the final report
 report/build_final.py       -> fills report/report_final.md from results and renders ../Assignments/Report/ELEC3544-Report-Group16.pdf
 ```

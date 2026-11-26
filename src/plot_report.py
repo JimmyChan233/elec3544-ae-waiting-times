@@ -82,24 +82,29 @@ def fig_development():
 def fig_november():
     live = pd.read_csv("results/live_nov_by_day.csv", parse_dates=["ts_f"])
     live = live[live["mode"] == "frozen"]
-    blind = pd.read_csv("results/blind_nov11_15_by_day.csv", parse_dates=["ts_f"])
+    blind = pd.read_csv("results/blind_nov_by_day.csv", parse_dates=["ts_f"])
     blind = blind[blind["mode"] == "blind"]
     d = pd.concat([live, blind], ignore_index=True).sort_values(["H", "ts_f"])
-    fig, axes = plt.subplots(1, 2, figsize=(9.4, 2.7), dpi=220, sharey=True)
+    fig, axes = plt.subplots(1, 2, figsize=(9.8, 2.85), dpi=220, sharey=True)
     for ax, H, col, name in ((axes[0], 3, "ae_grad_boosting", "Gradient boosting"), (axes[1], 24, "ae_gb_slow_history", "Gradient boosting + slow history")):
         g = d[d.H == H].reset_index(drop=True)
         x = np.arange(len(g))
         ax.bar(x - 0.2, g.ae_hist_mean, width=0.38, color=GREY, label="Historical mean (baseline)")
         ax.bar(x + 0.2, g[col], width=0.38, color=BLUE if H == 3 else TAN, label=name)
-        split_x = len(live[live.H == H]) - 0.5
-        ax.axvline(split_x, color="grey", ls="--", lw=0.9)
-        ax.text(split_x - 0.2, 91, "Live", ha="right", va="top", fontsize=8, color="#444444")
-        ax.text(split_x + 0.2, 91, "Blind", ha="left", va="top", fontsize=8, color="#444444")
+        s1 = len(live[live.H == H]) - 0.5
+        s2 = s1 + int((g.ts_f < "2026-11-16").sum()) - len(live[live.H == H])
+        ax.axvline(s1, color="grey", ls="--", lw=0.9)
+        ax.axvline(s2, color="grey", ls=":", lw=0.9)
+        ax.text(s1 / 2 - 0.2, 84, "Live", ha="center", va="top", fontsize=7.8, color="#444444")
+        ax.text((s1 + s2) / 2, 84, "Pre-reg", ha="center", va="top", fontsize=7.8, color="#444444")
+        ax.text((s2 + len(g) - 1) / 2 + 0.2, 84, "Extended blind", ha="center", va="top", fontsize=7.8, color="#444444")
         ax.set_xticks(x, [t.strftime("%-d") for t in g.ts_f])
         ax.set_xlabel("Day of November 2026")
         tidy(ax)
-        ax.set(title=f"{H} h ahead", ylim=(0, 96))
-        ax.legend(fontsize=8.2, frameon=False, loc="upper left", ncol=1)
+        ax.tick_params(axis="x", labelsize=7.5)
+        ax.set(ylim=(0, 88))
+        ax.set_title(f"{H} h ahead", pad=22)
+        ax.legend(fontsize=7.8, frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.00), ncol=2)
     axes[0].set_ylabel("MAE on that day (minutes)")
     fig.tight_layout(w_pad=1.6)
     fig.savefig("results/report_fig_november.png", bbox_inches="tight", pad_inches=0.06)

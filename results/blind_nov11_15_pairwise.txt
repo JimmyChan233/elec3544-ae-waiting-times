@@ -1,6 +1,0 @@
-3 h ahead, 11-15 Nov 2026 blind test | MAE model 41.43, rule 45.52, hist 60.60
-pairwise 'which hospital is quicker in 3 h' over 12,432 hospital-pair hours with an actual gap >= 30 min (all methods available; ties count as half):
-  model      correct 0.8176   (ties 0.0%)
-  rule       correct 0.8058   (ties 0.0%)
-  hist_mean  correct 0.7061   (ties 0.3%)
-  wait_now   correct 0.7714   (ties 12.0%)
