@@ -1,4 +1,4 @@
-# separate environment for src/foundation_baseline.py only (Python 3.12.5)
+# separate environment for src/foundation_baseline.py and src/blind_foundation_nov.py only (Python 3.12.5)
 accelerate==1.15.0
 chronos-forecasting==2.3.2
 numpy==2.5.4

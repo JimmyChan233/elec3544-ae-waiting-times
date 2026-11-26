@@ -5,6 +5,7 @@ Every number in the report comes from a result file; edit the words in report_fi
 """
 import argparse, hashlib, os, re, subprocess, sys
 from pathlib import Path
+import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -45,20 +46,29 @@ def main():
     ap.add_argument("--official", action="store_true", help="build in the official course LaTeX template")
     a = ap.parse_args()
     N = br.numbers(a)
+    ab = pd.read_csv(ROOT / "results/models_2026-10-30_ablation.csv").set_index(["task", "H", "group"])["delta"]
+    N.update(abl_hm3=pm(float(ab.loc[("reg", 3, "hist_mean")])), abl_hm24=pm(float(ab.loc[("reg", 24, "hist_mean")]), 2))
     f1, f3 = br.f1, br.f3
 
     N["top_gain"] = N["top_gain"].replace("PYNEH", "Pamela Youde Nethersole Eastern")
     N["low_gain"] = N["low_gain"].replace("AHNH", "Alice Ho Miu Ling Nethersole")
     # --- latest & blind data facts
     h = pd.read_csv(ROOT / "data/processed/hourly_features_latest.csv", usecols=["fmt"])
-    hb = pd.read_csv(ROOT / "data/processed/hourly_features_blind.csv", usecols=["fmt", "hour_ts"], parse_dates=["hour_ts"])
+    hb = pd.read_csv(ROOT / "data/processed/hourly_features_blind.csv", usecols=["fmt", "hour_ts", "t45_min"], parse_dates=["hour_ts"])
+    hn = hb[hb.fmt == "new"]
     raw = Path.home() / "elec3544_data/raw/ae"
-    n_files = sum(len(os.listdir(raw / d)) for d in ("old", "new")) if raw.exists() else 33315
+    n_files = sum(len(os.listdir(raw / d)) for d in ("old", "new")) if raw.exists() else 33555
     grid_hours_blind = int((hb.hour_ts.max() - hb.hour_ts.min()).total_seconds() // 3600) + 1
     N.update(n_rows_latest=f"{len(h):,}", n_rows_new_latest=f"{(h.fmt == 'new').sum():,}",
              n_rows_blind=f"{len(hb):,}", n_hours_blind=f"{hb.hour_ts.nunique():,}",
              n_rows_new_blind=f"{(hb.fmt == 'new').sum():,}", n_files=f"{n_files:,}",
-             n_missing_pct_blind=f"{100 * (1 - len(hb) / (grid_hours_blind * 18)):.1f}")
+             n_missing_pct_blind=f"{100 * (1 - len(hb) / (grid_hours_blind * 18)):.1f}",
+             mean_tr=f1(hn[hn.hour_ts < "2026-09-01"].t45_min.mean()),
+             pos_tr=f"{(hn[hn.hour_ts < '2026-09-01'].t45_min > 120).mean():.1%}",
+             mean_oct=f1(hn[(hn.hour_ts >= "2026-10-01") & (hn.hour_ts < "2026-11-01")].t45_min.mean()),
+             mean_nov1=f1(hn[(hn.hour_ts >= "2026-11-01") & (hn.hour_ts < "2026-11-11")].t45_min.mean()),
+             mean_ext=f1(hn[hn.hour_ts >= "2026-11-11"].t45_min.mean()),
+             pos_ext=f"{(hn[hn.hour_ts >= '2026-11-11'].t45_min > 120).mean():.1%}")
 
     # --- follow-up experiments of 4 Nov
     v = pd.read_csv(ROOT / "results/hn_24h_validation.csv"); v = v[v["mode"] == "raw"].set_index("model").val_MAE
@@ -124,7 +134,9 @@ def main():
              s24_oct=pm(pv(24, "oct", f"gb_slow_history_minus_{rule}")), s24_oct_ci=pci(24, "oct", f"gb_slow_history_minus_{rule}"),
              s24_nov=pm(pv(24, "nov", f"gb_slow_history_minus_{rule}")), s24_nov_ci=pci(24, "nov", f"gb_slow_history_minus_{rule}"),
              gl3_oct=f1(pv(3, "oct", "gb_level")), gl3_nov=f1(pv(3, "nov", "gb_level")), gl24_oct=f1(pv(24, "oct", "gb_level")), gl24_nov=f1(pv(24, "nov", "gb_level")),
-             qw=round(pv(3, "nov", "quantile_10_90", "width") / 5) * 5, qc_oct=f"{pv(3, 'oct', 'quantile_10_90', 'coverage'):.0%}", qc_nov=f"{pv(3, 'nov', 'quantile_10_90', 'coverage'):.0%}",
+             qw=round(pv(3, "nov", "quantile_10_90", "width") / 5) * 5,
+             qw3_oct=round(pv(3, "oct", "quantile_10_90", "width")), qw3_nov=round(pv(3, "nov", "quantile_10_90", "width")),
+             qc_oct=f"{pv(3, 'oct', 'quantile_10_90', 'coverage'):.0%}", qc_nov=f"{pv(3, 'nov', 'quantile_10_90', 'coverage'):.0%}",
              q120=re.search(r"exactly 120 min: ([\d.]+%)", psum).group(1),
              wx_missing=f"{round(float(re.search(r'rainfall\): ([\d.]+)%', psum).group(1)))}%",
              b1_3=f"{float(re.search(r'H=3: damped-anomaly weight ([0-9.]+)', psum).group(1)):.2f}",
@@ -188,22 +200,57 @@ def main():
         fmc3_ext=f"{BF.loc[(3, 'ext_11_25'), 'coverage']:.0%}",
         fmc24_ext=f"{BF.loc[(24, 'ext_11_25'), 'coverage']:.0%}",
         fmw3_ext=round(BF.loc[(3, "ext_11_25"), "width"]),
+        fmw24_ext=round(BF.loc[(24, "ext_11_25"), "width"]),
         qc3_prereg=f"{bv(3, 'prereg_11_15', 'quantile_10_90', 'coverage'):.0%}",
+        qc3_prereg_1d=f"{bv(3, 'prereg_11_15', 'quantile_10_90', 'coverage'):.1%}",
         qc3_ext=f"{bv(3, 'ext_11_25', 'quantile_10_90', 'coverage'):.0%}",
         qw3_ext=round(bv(3, "ext_11_25", "quantile_10_90", "width")),
+        qw24_ext=round(bv(24, "ext_11_25", "quantile_10_90", "width")),
+        qc24_ext=f"{bv(24, 'ext_11_25', 'quantile_10_90', 'coverage'):.0%}",
+        q_below3_ext=f"{bv(3, 'ext_11_25', 'quantile_10_90', 'below'):.1%}",
+        q_above3_ext=f"{bv(3, 'ext_11_25', 'quantile_10_90', 'above'):.1%}",
         pw_prereg_model=f"{float(re.search(r'model\s+correct ([\d.]+)', prereg_pw_txt).group(1)):.0%}",
         pw_prereg_rule=f"{float(re.search(r'rule\s+correct ([\d.]+)', prereg_pw_txt).group(1)):.0%}",
+        pw_prereg_hist=f"{float(re.search(r'hist_mean\s+correct ([\d.]+)', prereg_pw_txt).group(1)):.0%}",
         pw_prereg_now=f"{float(re.search(r'wait_now\s+correct ([\d.]+)', prereg_pw_txt).group(1)):.0%}",
         pw_ext_n=re.search(r"over ([\d,]+) hospital-pair", ext_pw_txt).group(1),
         pw_ext_model=f"{float(re.search(r'model\s+correct ([\d.]+)', ext_pw_txt).group(1)):.0%}",
         pw_ext_rule=f"{float(re.search(r'rule\s+correct ([\d.]+)', ext_pw_txt).group(1)):.0%}",
+        pw_ext_hist=f"{float(re.search(r'hist_mean\s+correct ([\d.]+)', ext_pw_txt).group(1)):.0%}",
         pw_ext_now=f"{float(re.search(r'wait_now\s+correct ([\d.]+)', ext_pw_txt).group(1)):.0%}",
+    )
+    bbd = pd.read_csv(ROOT / "results/blind_nov_by_day.csv", parse_dates=["ts_f"])
+    bfp = pd.read_csv(ROOT / "results/blind_nov_foundation_predictions.csv", parse_dates=["target_hour"])
+    bf_day = bfp.assign(ts_f=bfp.target_hour.dt.normalize()).groupby(["H", "ts_f"])["ae"].mean().rename("ae_chronos")
+    bmrg = bbd.merge(bf_day, on=["H", "ts_f"])
+
+    def day_boot(vals, n_boot=2000):
+        rng = np.random.default_rng(0)
+        b = [vals[rng.integers(0, len(vals), len(vals))].mean() for _ in range(n_boot)]
+        return float(vals.mean()), float(np.percentile(b, 2.5)), float(np.percentile(b, 97.5))
+
+    b3_10 = bmrg[(bmrg.H == 3) & (bmrg.ts_f >= "2026-11-16")]
+    m10, l10, h10 = day_boot((b3_10.ae_grad_boosting - b3_10.ae_level_anomaly).values)
+    b24_all = bmrg[bmrg.H == 24]
+    m24f, l24f, h24f = day_boot((b24_all.ae_chronos - b24_all.ae_level_anomaly).values)
+    b3_all = bmrg[bmrg.H == 3]
+    m3f, l3f, h3f = day_boot((b3_all.ae_chronos - b3_all.ae_grad_boosting).values)
+    n12 = b24_all[b24_all.ts_f == "2026-11-12"].iloc[0]
+    N.update(
+        g3_ext10=f1(-m10), g3_ext10_ci=f"{pm(l10)} to {pm(h10)}",
+        w3_ext10=f"{int((b3_10.ae_grad_boosting < b3_10.ae_level_anomaly).sum())} of {len(b3_10)}",
+        fm24_vs_rule=pm(m24f, 2), fm24_vs_rule_ci=f"{pm(l24f, 2)} to {pm(h24f, 2)}",
+        fm24_vs_rule_wins=f"{int((b24_all.ae_chronos < b24_all.ae_level_anomaly).sum())} of {len(b24_all)}",
+        fm3_vs_gb=pm(m3f, 2), fm3_vs_gb_ci=f"{pm(l3f, 2)} to {pm(h3f, 2)}",
+        fm3_vs_gb_wins=f"{int((b3_all.ae_chronos < b3_all.ae_grad_boosting).sum())} of {len(b3_all)}",
+        gb24_nov12=f1(n12.ae_grad_boosting), sgb24_nov12=f1(n12.ae_gb_slow_history),
+        r24_nov12=f1(n12.ae_level_anomaly), fm24_nov12=f1(n12.ae_chronos),
     )
 
     prow = []
-    for key, name in (("hist_mean", "Historical mean (original baseline)"), ("rolling28", "Rule: 28-day mean, same clock hour"), ("damped_anomaly", "Rule: historical mean + damped anomaly"),
-                      ("level_anomaly", "Rule: 28-day mean + damped anomaly"), ("decision_tree", "Decision tree"), ("grad_boosting", "Gradient boosting (frozen model)"),
-                      ("gb_slow_history", "Gradient boosting + slow history"), ("gb_level", "Gradient boosting + level features")):
+    for key, name in (("hist_mean", "Historical mean (baseline)"), ("rolling28", "Rule: 28-day mean, same hour"), ("damped_anomaly", "Rule: hist. mean + anomaly"),
+                      ("level_anomaly", "Rule: 28-day mean + anomaly"), ("decision_tree", "Decision tree"), ("grad_boosting", "Gradient boosting (frozen)"),
+                      ("gb_slow_history", "Gradient boosting + slow hist."), ("gb_level", "Gradient boosting + level")):
         prow.append([name] + [f1(pv(H, per, key)) for H in (3, 24) for per in ("oct", "nov")])
     F = pd.read_csv(ROOT / "results/foundation_metrics.csv").set_index(["H", "period"])
     FP = pd.read_csv(ROOT / "results/foundation_predictions.csv", parse_dates=["target_hour"])
@@ -212,6 +259,7 @@ def main():
     dd = mrg.assign(ae_gb=(mrg.actual - mrg.model).abs()).groupby(mrg.target_hour.dt.normalize())[["ae", "ae_gb"]].mean()
     N.update(fm3_oct=f1(F.loc[(3, "oct"), "MAE"]), fm3_nov=f1(F.loc[(3, "nov"), "MAE"]), fm24_oct=f1(F.loc[(24, "oct"), "MAE"]), fm24_nov=f1(F.loc[(24, "nov"), "MAE"]),
              fmc_oct=f"{F.loc[(3, 'oct'), 'coverage']:.0%}", fmc_nov=f"{F.loc[(3, 'nov'), 'coverage']:.0%}",
+             fmw3_oct=round(F.loc[(3, "oct"), "width"]), fmw3_nov=round(F.loc[(3, "nov"), "width"]),
              fm_gap="1 to 2", fm_days=f"{int((dd.ae < dd.ae_gb).sum())} of {len(dd)}")
     prow.insert(5, ["Chronos-Bolt, zero-shot [10]"] + [f1(F.loc[(H, per), "MAE"]) for H in (3, 24) for per in ("oct", "nov")])
     blind_keys = ("hist_mean", "rolling28", "damped_anomaly", "level_anomaly", "decision_tree",
@@ -237,12 +285,12 @@ def main():
          f"{N['fm3_ext']} (GB {N['gb3_ext']}, rule {N['r3_ext']}; 24 h {N['fm24_ext']})",
          "Confirmed"],
         ["10–90% coverage: GB 70–80%; Chronos 75–85%",
-         f"GB {N['qc3_prereg']} (69.6%); Chronos {N['fmc3_prereg']}",
+         f"GB {N['qc3_prereg_1d']}; Chronos {N['fmc3_prereg']}",
          f"GB {N['qc3_ext']}; Chronos {N['fmc3_ext']} (24 h {N['fmc24_ext']})",
-         "Confirmed on 14 d (GB 69.6% on 4 d)"],
+         f"Met on 14 d (GB {N['qc3_prereg_1d']} on 4 d)"],
         ["3 h pairwise: rule & GB within 2 pp, ≥2 pp > board",
-         f"GB {N['pw_prereg_model']}, rule {N['pw_prereg_rule']}, board {N['pw_prereg_now']}",
-         f"GB {N['pw_ext_model']}, rule {N['pw_ext_rule']}, board {N['pw_ext_now']} ({N['pw_ext_n']} pairs)",
+         f"GB {N['pw_prereg_model']}, rule {N['pw_prereg_rule']}, hist {N['pw_prereg_hist']}, board {N['pw_prereg_now']}",
+         f"GB {N['pw_ext_model']}, rule {N['pw_ext_rule']}, hist {N['pw_ext_hist']}, board {N['pw_ext_now']} ({N['pw_ext_n']} pairs)",
          "Confirmed"],
     ]
     prereg_hdr = ["Pre-registered expectation (11 Nov)", "Pre-reg 12–15 Nov (4 d)", "Extended 12–25 Nov (14 d)", "Verdict"]
@@ -269,7 +317,7 @@ def main():
 
     N.update(fig_eda=str(ROOT / "results/checkpoint_fig.png"), fig_models=str(ROOT / "results/report_fig_models.png"),
              fig_dev=str(ROOT / "results/report_fig_development.png"), fig_nov=str(ROOT / "results/report_fig_november.png"))
-    z = Path(a.zip)
+    z = next((p for p in (Path(a.zip), ROOT / "Group16-Project-data.zip") if p.exists()), Path(a.zip))
     N["zip_sha"] = hashlib.sha256(z.read_bytes()).hexdigest()[:16] if z.exists() else "TBD"
     log = (ROOT / "EXPERIMENT_LOG.md").read_text()
     for a_, b_ in (("→", r"$\to$"), ("≈", r"$\approx$"), ("≠", r"$\neq$")):

@@ -35,12 +35,12 @@ def main():
     ax1.set(xlabel="Hour of day", ylabel="Cat 4/5 median wait (min)", xticks=range(0, 24, 3),
             title="Daily cycle, 18 hospitals (Oct 2025 to Sep 2026)")
     ax1.legend(fontsize=9.5, frameon=False)
-    for f, lab in (("old", "Old format (category lower bound)"), ("new", "New format (median)")):
+    for f, lab in (("old", "Old format (lower bound)"), ("new", "New format (median)")):
         if f in monthly:
             ax2.plot(monthly.index, monthly[f], marker="o", ms=3, lw=1.6, label=lab)
     ax2.axvline(pd.Timestamp("2025-10-13"), color="grey", ls="--", lw=1)
     ax2.set(ylabel="Share of hours over 2 h", ylim=(0, 1), title="Share of hours over 2 h, by month")
-    ax2.legend(fontsize=9.5, frameon=False, loc="lower left")
+    ax2.legend(fontsize=8.8, frameon=False, loc="lower left")
     ax2.xaxis.set_major_locator(mdates.YearLocator()); ax2.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     for ax in (ax1, ax2):
         ax.title.set_fontsize(11.5)

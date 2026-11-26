@@ -3,13 +3,20 @@
 Usage: python src/plot_report.py
 Writes results/report_fig_{models,development,november}.png
 """
+import os, sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, os.path.dirname(__file__))
+import train_models as tm  # noqa: E402
+from live_test import NOV, add_slow  # noqa: E402
+from posthoc_checks import add_level  # noqa: E402
+
 GREY, BLUE, TAN = "#9aa3ad", "#2f6690", "#d08c3f"
+CHARCOAL, CRIMSON = "#1f2421", "#b8332a"
 NAMES = {"persistence": "Persistence (baseline)", "hist_mean": "Historical mean (baseline)",
          "ols_calendar_only": "OLS, calendar + hospital", "ols": "OLS, all features", "ridge": "Ridge", "lasso": "Lasso",
          "random_forest": "Random forest", "grad_boosting": "Gradient boosting", "logistic": "Logistic regression"}
@@ -79,32 +86,69 @@ def fig_development():
     plt.close(fig)
 
 
+def _nov_early_rule():
+    """Daily MAE of frozen level_anomaly on 1-10 Nov (identical formula to posthoc_checks.py)."""
+    for g in ("weather", "air"):
+        tm.GROUPS.pop(g, None)
+    grid, hol = tm.load_grid("data/processed/hourly_features_latest.csv", "data/raw/aux")
+    tm.END = grid.hour_ts.max() + pd.Timedelta(hours=1)
+    out = {}
+    for H in (3, 24):
+        X = add_level(add_slow(tm.make_horizon(grid, hol, H)), H)
+        D = X[(X.ts_f >= tm.SWITCH) & X.y_f.notna()].copy()
+        D = tm.add_hist(D, "y_f", D.ts_f < tm.VAL)
+        tr = D[D.ts_f < tm.VAL]
+        ok = tr[["r_f", "anom"]].notna().all(axis=1)
+        b2 = float(((tr.y_f - tr["r_f"]) * tr["anom"])[ok].sum() / (tr["anom"] ** 2)[ok].sum())
+        nov = D[D.ts_f >= NOV].copy()
+        pred = (nov.r_f + b2 * nov.anom).fillna(nov.r_f).fillna(nov["hist"])
+        nov["ae_rule"] = np.abs(nov.y_f - pred)
+        assert abs(nov["ae_rule"].mean() - (41.18 if H == 3 else 47.85)) < 0.05
+        d = nov.assign(day=nov.ts_f.dt.floor("D")).groupby("day")["ae_rule"].mean()
+        out[H] = d
+    return out
+
+
 def fig_november():
     live = pd.read_csv("results/live_nov_by_day.csv", parse_dates=["ts_f"])
     live = live[live["mode"] == "frozen"]
     blind = pd.read_csv("results/blind_nov_by_day.csv", parse_dates=["ts_f"])
     blind = blind[blind["mode"] == "blind"]
+    rule_early = _nov_early_rule()
+    fm_early = pd.read_csv("results/foundation_predictions.csv", parse_dates=["target_hour"])
+    fm_early = fm_early[fm_early["period"] == "nov"].assign(day=lambda x: x.target_hour.dt.floor("D"))
+    fm_blind = pd.read_csv("results/blind_nov_foundation_predictions.csv", parse_dates=["target_hour"])
+    fm_blind = fm_blind.assign(day=lambda x: x.target_hour.dt.floor("D"))
+    fm_all = pd.concat([fm_early, fm_blind], ignore_index=True).groupby(["H", "day"])["ae"].mean()
+
     d = pd.concat([live, blind], ignore_index=True).sort_values(["H", "ts_f"])
-    fig, axes = plt.subplots(1, 2, figsize=(9.8, 2.85), dpi=220, sharey=True)
-    for ax, H, col, name in ((axes[0], 3, "ae_grad_boosting", "Gradient boosting"), (axes[1], 24, "ae_gb_slow_history", "Gradient boosting + slow history")):
+    fig, axes = plt.subplots(1, 2, figsize=(9.8, 3.1), dpi=220, sharey=True)
+    for ax, H, col, name in ((axes[0], 3, "ae_grad_boosting", "Gradient boosting"), (axes[1], 24, "ae_gb_slow_history", "GB + slow history")):
         g = d[d.H == H].reset_index(drop=True)
+        rule_series = pd.concat([rule_early[H], blind[blind.H == H].set_index("ts_f")["ae_level_anomaly"]])
+        g["ae_rule"] = g["ts_f"].map(rule_series)
+        g["ae_chronos"] = [fm_all.loc[(H, t)] for t in g["ts_f"]]
+
         x = np.arange(len(g))
-        ax.bar(x - 0.2, g.ae_hist_mean, width=0.38, color=GREY, label="Historical mean (baseline)")
-        ax.bar(x + 0.2, g[col], width=0.38, color=BLUE if H == 3 else TAN, label=name)
+        ax.bar(x - 0.2, g.ae_hist_mean, width=0.38, color=GREY, alpha=0.85, label="Historical mean")
+        ax.bar(x + 0.2, g[col], width=0.38, color=BLUE if H == 3 else TAN, alpha=0.9, label=name)
+        ax.plot(x, g.ae_rule, color=CHARCOAL, ls="--", lw=1.35, marker="o", ms=2.6, label="Rule: level + anomaly")
+        ax.plot(x, g.ae_chronos, color=CRIMSON, ls="-", lw=1.45, marker="s", ms=2.5, label="Chronos-Bolt (zero-shot)")
+
         s1 = len(live[live.H == H]) - 0.5
         s2 = s1 + int((g.ts_f < "2026-11-16").sum()) - len(live[live.H == H])
         ax.axvline(s1, color="grey", ls="--", lw=0.9)
         ax.axvline(s2, color="grey", ls=":", lw=0.9)
-        ax.text(s1 / 2 - 0.2, 84, "Live", ha="center", va="top", fontsize=7.8, color="#444444")
-        ax.text((s1 + s2) / 2, 84, "Pre-reg", ha="center", va="top", fontsize=7.8, color="#444444")
-        ax.text((s2 + len(g) - 1) / 2 + 0.2, 84, "Extended blind", ha="center", va="top", fontsize=7.8, color="#444444")
+        ax.text(s1 / 2 - 0.2, 86, "Live", ha="center", va="top", fontsize=7.8, color="#444444")
+        ax.text((s1 + s2) / 2, 86, "Pre-reg", ha="center", va="top", fontsize=7.8, color="#444444")
+        ax.text((s2 + len(g) - 1) / 2 + 0.2, 86, "Extended blind", ha="center", va="top", fontsize=7.8, color="#444444")
         ax.set_xticks(x, [t.strftime("%-d") for t in g.ts_f])
         ax.set_xlabel("Day of November 2026")
         tidy(ax)
         ax.tick_params(axis="x", labelsize=7.5)
-        ax.set(ylim=(0, 88))
-        ax.set_title(f"{H} h ahead", pad=22)
-        ax.legend(fontsize=7.8, frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.00), ncol=2)
+        ax.set(ylim=(0, 90))
+        ax.set_title(f"{H} h ahead", pad=30)
+        ax.legend(fontsize=7.4, frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.00), ncol=2, handlelength=1.8, columnspacing=1.0)
     axes[0].set_ylabel("MAE on that day (minutes)")
     fig.tight_layout(w_pad=1.6)
     fig.savefig("results/report_fig_november.png", bbox_inches="tight", pad_inches=0.06)
