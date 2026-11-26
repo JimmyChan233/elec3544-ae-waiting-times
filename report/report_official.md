@@ -72,7 +72,7 @@ where $\bar{{y}}^{{(28)}}$ is the trailing 28-day same-hour mean and $\beta_h$ i
 
 | Decision | Alternative considered | Evidence | Outcome |
 |--------------------|--------------------|--------------------------|--------------|
-| Hist. mean on new format only (cls.) | Average over all years | Old feed {pos_old}% positives vs {pos_new}% now; val acc {hm_acc_old} to {hm_acc_val} (v1 to v2) | Kept: fairer bar |
+| Hist. mean on new format only (cls.) | Average over all years | Old {pos_old}% vs {pos_new}% now; val acc {hm_acc_old} → {hm_acc_val} (all-yrs → new-fmt) | Kept: fairer bar |
 | Train classifier on all years + era | New format only | Test AUC {auc_A3} vs {auc_B3} at 3 h | Equal for boosting; kept |
 | Gradient boosting as main model | Linear models, forest | 3 h test MAE {gb_mae3} vs {ols_mae3} (OLS) and {rf_mae3} (RF) | Kept |
 | Drop weather and AQHI | Keep all features | Dropping either lowers 3 h val MAE (Fig 2a); Oct weather missing | Dropped |
@@ -159,7 +159,7 @@ An adversarial AI review of our draft asked whether the ten-month historical mea
 
 ## Limitations
 
-- **Coverage, gaps & granularity.** October has {n_gap_days} missing days, 1–10 Nov has 8, and 11–25 Nov has 14 (11 Nov absent; some scored rows lack origin snapshots, Section 2.2), and 4-day bootstrap intervals are coarse. Moreover, the target exists since October 2025 (one winter season) and measures HA's published 30-min hospital median rather than true individual waits; a ~40-minute MAE makes calibrated intervals preferable to a point guess.
+- **Coverage, gaps & granularity.** October misses {n_gap_days} days; 1–10 Nov has 8 scored days and 11–25 Nov has 14 (11 Nov absent; some scored rows lack origin snapshots, Section 2.2), and 4-day bootstrap intervals are coarse. Moreover, the target exists since October 2025 (one winter season) and measures HA's published 30-min hospital median rather than true individual waits; a ~40-minute MAE makes calibrated intervals preferable to a point guess.
 
 # Conclusion
 
@@ -196,16 +196,19 @@ Claude Code (Anthropic) drafted Python scripts, report prose, and slides from ou
 
 # Supplementary Materials {{.unnumbered}}
 
-**Commands to reproduce the results**, run from a clone of the repository (`tag final-2026-11-27`), in this order. The PDF build requires pandoc, a TeX distribution, and `elec3544_report.sty` from the Moodle template placed in `report/template/` (or `report/`). Unzipping release `Group16-Project-data.zip` into `data/processed/` provides all three frozen CSVs (`hourly_features_{{full,latest,blind}}.csv`); Chronos-Bolt runs in a separate Python 3.12.5 environment (`venv-chronos`, `requirements-foundation.txt`, pinned revision `5d9f166d`).
+**Commands to reproduce the results**, run from a clone of the repository (`tag final-2026-11-27`), in this order. The PDF build requires pandoc, a TeX distribution, and `elec3544_report.sty` from the Moodle template placed in `report/template/` (or `report/`). Save `Group16-Project-data.zip` to `data/processed/` (or pass its path to `--zip`) and unzip it there to obtain all three frozen CSVs (`hourly_features_{{full,latest,blind}}.csv`); Chronos-Bolt runs in a separate Python 3.12.5 environment (`venv-chronos`, `requirements-foundation.txt`, pinned revision `5d9f166d`).
 
 ```
 pip install -r requirements.txt && python3 -m pytest -q tests/
 python3 -m venv venv-chronos && venv-chronos/bin/pip install -r requirements-foundation.txt
-# Canonical data: unzip Group16-Project-data.zip into data/processed/ (gives *_full, *_latest, *_blind.csv)
-# Optional archive rebuild from scratch (produces *_blind.csv only; Oct/Nov frozen cuts use the release ZIP):
-#   python3 src/download_ae_archive.py --start 20230101 --end 20261125 --every 4 --out ~/elec3544_data/raw/ae
-#   python3 src/fetch_aux.py && python3 src/parse_ae.py --raw ~/elec3544_data/raw/ae --out data/processed/ae_snapshots_blind.csv
-#   python3 src/build_features.py --ae data/processed/ae_snapshots_blind.csv --out data/processed/hourly_features_blind.csv
+# Canonical: save & unzip Group16-Project-data.zip in data/processed/ (*_full, *_latest, *_blind.csv)
+# Optional archive rebuild from scratch (*_blind.csv only; Oct/Nov frozen cuts use the release ZIP):
+#   python3 src/download_ae_archive.py --start 20230101 --end 20261125 --every 4 \
+#     --out ~/elec3544_data/raw/ae && python3 src/fetch_aux.py
+#   python3 src/parse_ae.py --raw ~/elec3544_data/raw/ae \
+#     --out data/processed/ae_snapshots_blind.csv
+#   python3 src/build_features.py --ae data/processed/ae_snapshots_blind.csv \
+#     --out data/processed/hourly_features_blind.csv
 python3 src/train_models.py --out results/models_2026-10-30                       # all features (ablation)
 python3 src/train_models.py --drop weather air --out results/models_2026-10-30_v2 # Tables 1 & 4 (*_full.csv)
 python3 src/ni_24h_experiments.py && python3 src/zhu_3h_analysis.py               # Fig 2b, 54-config, calib
@@ -219,7 +222,7 @@ python3 report/build_final.py --official --zip data/processed/Group16-Project-da
 
 **November day-by-day error (1–10 Nov live, 12–15 Nov pre-registered, 16–25 Nov extended blind).** Figure 3 shows daily MAE across all 22 available November days, marking archive gaps on 6–7 and 11 Nov; Chronos-Bolt stays competitive even on gap-adjacent days.
 
-![Daily MAE across 22 available November days (gaps marked on 6–7 and 11 Nov); 3-hour boosting leads consistently while 24-hour supervised models track the rule.]({fig_nov}){{width=86%}}
+![Daily MAE across 22 available November days (gaps marked on 6–7 and 11 Nov); 3-hour boosting beats the rule on most blind days and tracks Chronos closely while 24-hour supervised models track the rule.]({fig_nov}){{width=86%}}
 
 **Where the model fails.** The 3-hour error is largest around midnight (about {err_night} minutes at 00:00–02:00) and smallest in the morning ({err_morning} minutes at 07:00–08:00), following the level of the wait itself. By hospital, the model helps most where waits are long and volatile: {top_gain}. It adds almost nothing at the most stable departments: {low_gain}.
 

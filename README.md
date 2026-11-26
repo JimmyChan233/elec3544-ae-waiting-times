@@ -19,8 +19,8 @@ gradient boosting adds about two minutes, and a day ahead nothing we built beats
 - `PREREGISTRATION.md`: the blind test on 11–15 November 2026, fixed before that data existed.
 - `report/report_official.md` (submitted official LaTeX report) and `report/report_final.md`: the report sources; `report/build_final.py` fills in every number from `results/`.
 - Processed tables are in the release asset `Group16-Project-data.zip`; unzip it into `data/processed/` (see `data/processed/README.md`).
-- The submitted report uses the official course LaTeX template: `python3 report/build_final.py --official` (text in `report/report_official.md`; needs pandoc, pdfLaTeX and the course style file `elec3544_report.sty` in `report/template/`). The experiments need only Python.
-- AI tools were used heavily in this project; the report's "Use of AI tools" section says how and how the outputs were checked.
+- The submitted report uses the official course LaTeX template: `python3 report/build_final.py --official --zip data/processed/Group16-Project-data.zip` (text in `report/report_official.md`; needs pandoc, pdfLaTeX and the course style file `elec3544_report.sty` in `report/template/` or `report/`). The experiments need only Python.
+- AI tools were used heavily in this project; the report's "AI Tool Use" section says how and how the outputs were checked.
 
 ## Pipeline
 
@@ -59,7 +59,6 @@ python3 src/plot_results.py --prefix results/models_2026-10-30_v2
 ## Quick start
 
 ```bash
-cd Project
 python3 -m pytest -q tests/
 python3 src/download_ae_archive.py --start 20240108 --end 20240114      # one sample week (old format)
 python3 src/download_ae_archive.py --start 20260901 --end 20260907      # one sample week (new format)

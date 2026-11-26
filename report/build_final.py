@@ -309,10 +309,10 @@ def main():
     ok_pw = lambda m, r, b, thr: abs(m - r) <= 0.02 and (min(m, r) - b) >= thr
 
     v1 = f"{'Met' if (1 <= d3_4 <= 3 and w3_4 > n3_4 / 2) else ('Direction met (>3 min)' if d3_4 > 3 else 'Missed')} (4 d); {'met' if (1 <= d3_14 <= 3 and w3_14 > n3_14 / 2) else 'missed'} (14 d)"
-    v2 = f"{'Point est. met' if abs(s24_4) <= 1.5 else 'Missed'}{' (CI wide)' if (s24_4_hi - s24_4_lo) > 3 else ''} (4 d); {'met' if abs(s24_14) <= 1.5 else 'missed'} (14 d)"
+    v2 = f"{'Point est. met' if abs(s24_4) < 1.5 else 'Missed'}{' (CI wide)' if (s24_4_lo < -1.5 or s24_4_hi > 1.5) else ''} (4 d); {'point est. met' if abs(s24_14) < 1.5 else 'missed'}{' (CI wide)' if (s24_14_lo < -1.5 or s24_14_hi > 1.5) else ''} (14 d)"
     v3 = f"{'Met' if ok_fm('prereg_11_15') else 'Missed'} (4 d) & {'met' if ok_fm('ext_11_25') else 'missed'} (14 d)"
     v4 = f"{'Met' if ok_cov('prereg_11_15') else 'GB <70%'} (4 d); {'met' if ok_cov('ext_11_25') else 'missed'} (14 d)"
-    v5 = f"{'Met ≥2 pp (ae49a32)' if (ok_pw(pw4_m, pw4_r, pw4_n, 0.02) and ok_pw(pw14_m, pw14_r, pw14_n, 0.02)) else 'Missed'}; {'met' if ok_pw(pw4_m, pw4_r, pw4_n, 0.08) else '< orig. ≥8 pp'}"
+    v5 = f"{'Met ≥2 pp (ae49a32)' if (ok_pw(pw4_m, pw4_r, pw4_n, 0.02) and ok_pw(pw14_m, pw14_r, pw14_n, 0.02)) else 'Missed'}; {'met' if ok_pw(pw4_m, pw4_r, pw4_n, 0.08) else '< orig. ≥8 pp (amended scoring)'}"
 
     prereg_rows = [
         ["3 h: GB beats rule by 1–3 min, wins most days",
