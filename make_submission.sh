@@ -19,7 +19,7 @@ cp "$A/Slides/presentation-script.md"       "$OUT/2-Presentation/"
 
 cp "$A/Share/Group16-Project-data.zip" "$OUT/3-Code-and-Data/"
 cp PREREGISTRATION.md "$OUT/3-Code-and-Data/"
-printf "# Code repository\n\nhttps://github.com/JimmyChan233/elec3544-ae-waiting-times (public)\n\nTag freeze-2026-11-11 (commit 2eb14ae) marks the frozen models and PREREGISTRATION.md before 11-15 Nov data existed.\nTag final-2026-11-26 marks the final report, fixed figures, and 11-15 Nov pre-registered and 11-25 Nov extended blind-test reproduction.\nThe processed data tables are the release asset Group16-Project-data.zip, also copied into this folder.\n" > "$OUT/3-Code-and-Data/REPOSITORY.md"
+printf "# Code repository\n\nhttps://github.com/JimmyChan233/elec3544-ae-waiting-times (public)\n\nHistory:\n- freeze-2026-11-11 (commit 2eb14ae): frozen models and PREREGISTRATION.md (original >=8 pp pairwise bar) before 11-15 Nov data existed.\n- commit ae49a32 (same day, 11 Nov, before 11-15 Nov data existed): amended pairwise expectation to >=2 pp after counting board ties consistently as half.\n- commit ba7ad35: executed the pre-registered 12-15 Nov 4-day blind test.\n- commit 7374b68: extended the blind holdout through 25 Nov (14 blind days: 12-25 Nov).\n- tag final-2026-11-27: final verified report, clean-clone build paths, computed Table 5 verdicts, and full 12-15 Nov method scorecard.\nThe processed data tables are in release asset Group16-Project-data.zip, also copied into this folder.\n" > "$OUT/3-Code-and-Data/REPOSITORY.md"
 cp EXPERIMENT_LOG.md README.md               "$OUT/3-Code-and-Data/"
 
 cp "$A/ELEC3544-GroupProject-ReportSlides-Guide.pdf" "$A/ELEC3544-GroupProject-AssessmentStandard.pdf" \

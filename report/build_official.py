@@ -30,6 +30,7 @@ PREAMBLE = r"""\documentclass[10pt,letterpaper]{article}
 \DeclareUnicodeCharacter{2212}{\ensuremath{-}}
 \DeclareUnicodeCharacter{00B2}{\ensuremath{^2}}
 \DeclareUnicodeCharacter{00D7}{\ensuremath{\times}}
+\DeclareUnicodeCharacter{2264}{\ensuremath{\leq}}
 \DeclareUnicodeCharacter{2265}{\ensuremath{\geq}}
 \DeclareUnicodeCharacter{2192}{\ensuremath{\to}}
 \DeclareUnicodeCharacter{2248}{\ensuremath{\approx}}
@@ -39,8 +40,15 @@ PREAMBLE = r"""\documentclass[10pt,letterpaper]{article}
 
 
 def build(N, ROOT, OUT):
-    local = ROOT / "report/template/elec3544_report.sty"   # the course style file; get it from the Moodle template zip
-    tpl = local if local.exists() else next((ROOT.parent / "Assignments" / "Official-Template-20261111").rglob("elec3544_report.sty"))
+    candidates = [
+        ROOT / "report/template/elec3544_report.sty",
+        ROOT / "report/elec3544_report.sty",
+        ROOT / "elec3544_report.sty",
+        Path.cwd() / "elec3544_report.sty",
+    ]
+    tpl = next((p for p in candidates if p.exists()), None)
+    if tpl is None:
+        tpl = next((ROOT.parent / "Assignments" / "Official-Template-20261111").rglob("elec3544_report.sty"))
     B = Path.home() / "elec3544_data" / "build_official"          # no spaces in the path: pdfLaTeX is fussy
     shutil.rmtree(B, ignore_errors=True); B.mkdir(parents=True)
     shutil.copy(tpl, B); shutil.copy(ROOT / "report/references.bib", B)

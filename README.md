@@ -10,14 +10,14 @@ We forecast the waiting time for semi-urgent and non-urgent patients at Hong Kon
 | Historical mean (hospital × weekday × hour) | 51.8 | 53.2 | 60.2 | 51.8 | 53.2 | 60.2 |
 | One-line rule (28-day level + damped anomaly) | 43.4 | 41.2 | 41.5 | 50.4 | 47.9 | 47.9 |
 | Chronos-Bolt, zero-shot | 42.8 | 40.5 | 39.2 | 52.0 | 50.3 | 47.0 |
-| Gradient boosting (ours) | 41.1 | 39.5 | 39.2 | 50.2 | 47.4 | 48.9 |
+| Gradient boosting (3 h) / GB + slow hist. (24 h) | 41.1 | 39.5 | 39.2 | 50.2 | 47.4 | 48.9 |
 
 Short version: the wait three hours ahead is predictable, most of the gain is available to a one-parameter rule,
 gradient boosting adds about two minutes, and a day ahead nothing we built beats the rule.
 
 - `EXPERIMENT_LOG.md`: every change, why, and what happened.
 - `PREREGISTRATION.md`: the blind test on 11–15 November 2026, fixed before that data existed.
-- `report/report_final.md`: the report source; `report/build_final.py` fills in every number from `results/`.
+- `report/report_official.md` (submitted official LaTeX report) and `report/report_final.md`: the report sources; `report/build_final.py` fills in every number from `results/`.
 - Processed tables are in the release asset `Group16-Project-data.zip`; unzip it into `data/processed/` (see `data/processed/README.md`).
 - The submitted report uses the official course LaTeX template: `python3 report/build_final.py --official` (text in `report/report_official.md`; needs pandoc, pdfLaTeX and the course style file `elec3544_report.sty` in `report/template/`). The experiments need only Python.
 - AI tools were used heavily in this project; the report's "Use of AI tools" section says how and how the outputs were checked.
@@ -46,10 +46,10 @@ src/foundation_baseline.py  -> zero-shot Chronos-Bolt baseline (separate env: re
 src/blind_test_nov.py         -> 11-25 Nov blind test & 11-15 pre-reg subset (results/blind_nov_*)
 src/blind_foundation_nov.py   -> zero-shot Chronos-Bolt on the 11-25 Nov blind window
 src/plot_report.py           -> figures for the final report
-report/build_final.py       -> fills report/report_final.md from results and renders ../Assignments/Report/ELEC3544-Report-Group16.pdf
+report/build_final.py       -> fills report/report_official.md (with --official) or report_final.md from results and renders ../Assignments/Report/ELEC3544-Report-Group16.pdf
 ```
 
-Latest results: `results/live_nov_summary.txt` (November live test) and `results/SUMMARY_2026-10-30.md`; every change and its effect: `EXPERIMENT_LOG.md`.
+Latest results: `results/blind_nov_summary.txt`, `results/blind_nov_foundation_summary.txt`, and `results/live_nov_summary.txt`; every change and its effect: `EXPERIMENT_LOG.md`.
 
 ```bash
 python3 src/train_models.py --drop weather air --out results/models_2026-10-30_v2   # ~10 min

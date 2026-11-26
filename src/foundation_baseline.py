@@ -24,6 +24,7 @@ CONTEXT, HORIZONS, Q = 512, (3, 24), [0.1, 0.5, 0.9]
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="amazon/chronos-bolt-base")
+    ap.add_argument("--revision", default="5d9f166d69f47aef3401367a7b842e78fe97b121")
     ap.add_argument("--inp", default="data/processed/hourly_features_latest.csv")
     ap.add_argument("--batch", type=int, default=256)
     ap.add_argument("--device", default="cpu")
@@ -37,7 +38,7 @@ def main():
     pos = {t: i for i, t in enumerate(idx)}
     origins = [t for t in idx if t >= OCT - pd.Timedelta(hours=24) and t + pd.Timedelta(hours=3) <= end]
     jobs = [(hosp, t) for hosp in series for t in origins]
-    pipe = BaseChronosPipeline.from_pretrained(a.model, device_map=a.device)
+    pipe = BaseChronosPipeline.from_pretrained(a.model, revision=a.revision, device_map=a.device)
     out, t0 = [], time.time()
     for s in range(0, len(jobs), a.batch):
         chunk = jobs[s:s + a.batch]

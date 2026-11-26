@@ -137,16 +137,22 @@ def fig_november():
 
         s1 = len(live[live.H == H]) - 0.5
         s2 = s1 + int((g.ts_f < "2026-11-16").sum()) - len(live[live.H == H])
+        g0 = int((g.ts_f < "2026-11-06").sum()) - 0.5
+        ax.axvline(g0, color="#bbbbbb", ls=":", lw=0.8)
         ax.axvline(s1, color="grey", ls="--", lw=0.9)
         ax.axvline(s2, color="grey", ls=":", lw=0.9)
-        ax.text(s1 / 2 - 0.2, 86, "Live", ha="center", va="top", fontsize=7.8, color="#444444")
-        ax.text((s1 + s2) / 2, 86, "Pre-reg", ha="center", va="top", fontsize=7.8, color="#444444")
-        ax.text((s2 + len(g) - 1) / 2 + 0.2, 86, "Extended blind", ha="center", va="top", fontsize=7.8, color="#444444")
+        ax.text(g0, 74.5, "6–7\ngap", ha="center", va="center", fontsize=6.4, color="#666666",
+                bbox=dict(boxstyle="round,pad=0.10", fc="white", ec="none", alpha=0.85))
+        ax.text(s1, 74.5, "11\ngap", ha="center", va="center", fontsize=6.4, color="#666666",
+                bbox=dict(boxstyle="round,pad=0.10", fc="white", ec="none", alpha=0.85))
+        ax.text(s1 / 2 - 0.2, 88, "Live", ha="center", va="top", fontsize=7.8, color="#444444")
+        ax.text((s1 + s2) / 2, 88, "Pre-reg", ha="center", va="top", fontsize=7.8, color="#444444")
+        ax.text((s2 + len(g) - 1) / 2 + 0.2, 88, "Extended blind", ha="center", va="top", fontsize=7.8, color="#444444")
         ax.set_xticks(x, [t.strftime("%-d") for t in g.ts_f])
         ax.set_xlabel("Day of November 2026")
         tidy(ax)
         ax.tick_params(axis="x", labelsize=7.5)
-        ax.set(ylim=(0, 90))
+        ax.set(ylim=(0, 92))
         ax.set_title(f"{H} h ahead", pad=30)
         ax.legend(fontsize=7.4, frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.00), ncol=2, handlelength=1.8, columnspacing=1.0)
     axes[0].set_ylabel("MAE on that day (minutes)")
