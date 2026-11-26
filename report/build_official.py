@@ -25,6 +25,7 @@ PREAMBLE = r"""\documentclass[10pt,letterpaper]{article}
 \providecommand{\pandocbounded}[1]{#1}
 \newcounter{none} % pandoc uses it for tables without a caption
 \setlength{\LTpre}{4pt}\setlength{\LTpost}{4pt}
+\setlength{\LTcapwidth}{\linewidth}
 \AtBeginEnvironment{longtable}{\footnotesize}
 \DeclareUnicodeCharacter{2212}{\ensuremath{-}}
 \DeclareUnicodeCharacter{00B2}{\ensuremath{^2}}

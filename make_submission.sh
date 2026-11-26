@@ -19,7 +19,7 @@ cp "$A/Slides/presentation-script.md"       "$OUT/2-Presentation/"
 
 cp "$A/Share/Group16-Project-data.zip" "$OUT/3-Code-and-Data/"
 cp PREREGISTRATION.md "$OUT/3-Code-and-Data/"
-printf "# Code repository\n\nhttps://github.com/JimmyChan233/elec3544-ae-waiting-times (public)\n\nThe report cites commit 2eb14ae, tag freeze-2026-11-11.\nThe processed data tables are the release asset Group16-Project-data.zip, also copied into this folder.\n" > "$OUT/3-Code-and-Data/REPOSITORY.md"
+printf "# Code repository\n\nhttps://github.com/JimmyChan233/elec3544-ae-waiting-times (public)\n\nTag freeze-2026-11-11 (commit 2eb14ae) marks the frozen models and PREREGISTRATION.md before 11-15 Nov data existed.\nTag final-2026-11-26 marks the final report, fixed figures, and 11-15 Nov blind-test reproduction.\nThe processed data tables are the release asset Group16-Project-data.zip, also copied into this folder.\n" > "$OUT/3-Code-and-Data/REPOSITORY.md"
 cp EXPERIMENT_LOG.md README.md               "$OUT/3-Code-and-Data/"
 
 cp "$A/ELEC3544-GroupProject-ReportSlides-Guide.pdf" "$A/ELEC3544-GroupProject-AssessmentStandard.pdf" \

@@ -21,6 +21,7 @@ def main():
 
     h = pd.read_csv(a.inp, usecols=["hospital", "fmt", "hour_ts", "t45_min", "t45_over2h",
                                     "hr", "is_weekend", "is_holiday"], parse_dates=["hour_ts"])
+    h = h[h["hour_ts"] < "2026-10-01"]   # keep EDA strictly before the held-out test periods (Oct-Nov 2026)
     new = h[h["fmt"] == "new"].dropna(subset=["t45_min"])
     off = new["is_weekend"].astype(bool) | new["is_holiday"].astype(bool)
     by_hr = pd.DataFrame({"Weekday": new[~off].groupby("hr")["t45_min"].mean(),

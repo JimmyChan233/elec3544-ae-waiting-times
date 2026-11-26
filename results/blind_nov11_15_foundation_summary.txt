@@ -1,0 +1,3 @@
+model amazon/chronos-bolt-base, zero-shot, context 512 h, device cpu, 2,538 forecasts in 12s
+H= 3 blind: n 1,728  MAE 41.37  10-90% range covers 76.7%, mean width 123 min
+H=24 blind: n 1,728  MAE 49.34  10-90% range covers 75.6%, mean width 143 min

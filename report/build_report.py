@@ -31,9 +31,10 @@ def short(h):
     return SHORT.get(h, h.replace(" Hospital", "").replace(" Medical Centre", ""))
 
 
-def md_table(header, rows):
+def md_table(header, rows, align_right=True):
     # pandoc sizes pipe-table columns by the dash counts: give the model-name column ~2.5x the others
-    out = ["| " + " | ".join(header) + " |", "|" + "-" * 30 + "|" + ("-" * 12 + "|") * (len(header) - 1)]
+    num_sep = ("-" * 11 + ":" if align_right else "-" * 12) + "|"
+    out = ["| " + " | ".join(header) + " |", "|" + "-" * 30 + "|" + num_sep * (len(header) - 1)]
     out += ["| " + " | ".join(str(c) for c in r) + " |" for r in rows]
     return "\n".join(out)
 
@@ -66,7 +67,7 @@ def numbers(a):
     have = set(h[h.hour_ts >= "2026-10-01"].hour_ts.dt.normalize())
     gaps = [d for d in test_days if d not in have]
     N.update(n_gap_days=len(gaps), gap_days=", ".join(f"{d.day} Oct" for d in gaps) or "none")
-    new = h[h.fmt == "new"]
+    new = h[(h.fmt == "new") & (h.hour_ts < "2026-10-01")]
     off = new.is_weekend.astype(bool) | new.is_holiday.astype(bool)
     wk, we = new[~off].groupby("hr").t45_min.mean(), new[off].groupby("hr").t45_min.mean()
     N.update(trough_min=round(wk.min()), trough_hr=f"{wk.idxmin():02d}", peak_min=round(wk.max()), peak_hr=f"{wk.idxmax():02d}",

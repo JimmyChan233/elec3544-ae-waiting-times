@@ -1,0 +1,35 @@
+data to 2026-11-15 23:00:00 | blind window (11-15 Nov) days with data: [12, 13, 14, 15]
+
+H=3: damped-anomaly weight 0.647, level-anomaly weight 0.618 (fitted on <2026-09-01, n=137,952); blind n=1,728
+  decision tree depth 14 (val MAE 43.62)
+  fitted grad_boosting in 13s
+  fitted gb_slow_history in 14s
+  fitted gb_level in 13s
+  blind 10-90% quantile range: covers 69.6% (below 19.2%, above 11.2%), mean width 119 min, median MAE 41.43
+  blind MAE: hist_mean 60.60  persistence 55.28  rolling28 54.35  damped_anomaly 46.35  level_anomaly 45.52  decision_tree 45.94  grad_boosting 41.43  gb_slow_history 41.42  gb_level 41.53
+    grad_boosting vs level_anomaly: -4.09 (95% day-bootstrap -6.13 .. -2.20), wins 4 of 4 days
+    grad_boosting vs hist_mean: -19.17 (95% day-bootstrap -22.42 .. -15.92), wins 4 of 4 days
+    gb_slow_history vs level_anomaly: -4.10 (95% day-bootstrap -5.97 .. -2.27), wins 4 of 4 days
+    gb_slow_history vs hist_mean: -19.18 (95% day-bootstrap -22.43 .. -15.92), wins 4 of 4 days
+    gb_level vs level_anomaly: -4.00 (95% day-bootstrap -5.42 .. -2.81), wins 4 of 4 days
+    gb_level vs hist_mean: -19.07 (95% day-bootstrap -22.24 .. -15.91), wins 4 of 4 days
+  3 h ahead, 11-15 Nov 2026 blind test | MAE model 41.43, rule 45.52, hist 60.60
+  pairwise 'which hospital is quicker in 3 h' over 12,432 hospital-pair hours with an actual gap >= 30 min (all methods available; ties count as half):
+    model      correct 0.8176   (ties 0.0%)
+    rule       correct 0.8058   (ties 0.0%)
+    hist_mean  correct 0.7061   (ties 0.3%)
+    wait_now   correct 0.7714   (ties 12.0%)
+
+H=24: damped-anomaly weight 0.327, level-anomaly weight 0.205 (fitted on <2026-09-01, n=137,952); blind n=1,728
+  decision tree depth 10 (val MAE 50.96)
+  fitted grad_boosting in 13s
+  fitted gb_slow_history in 15s
+  fitted gb_level in 15s
+  blind 10-90% quantile range: covers 68.9% (below 21.1%, above 10.1%), mean width 150 min, median MAE 56.12
+  blind MAE: hist_mean 60.60  persistence 58.73  rolling28 54.35  damped_anomaly 55.15  level_anomaly 52.45  decision_tree 56.50  grad_boosting 56.12  gb_slow_history 51.99  gb_level 51.74
+    grad_boosting vs level_anomaly: +3.67 (95% day-bootstrap -0.73 .. +8.07), wins 1 of 4 days
+    grad_boosting vs hist_mean: -4.48 (95% day-bootstrap -7.48 .. -0.01), wins 3 of 4 days
+    gb_slow_history vs level_anomaly: -0.47 (95% day-bootstrap -4.25 .. +2.73), wins 2 of 4 days
+    gb_slow_history vs hist_mean: -8.61 (95% day-bootstrap -9.89 .. -7.30), wins 4 of 4 days
+    gb_level vs level_anomaly: -0.71 (95% day-bootstrap -5.18 .. +3.29), wins 2 of 4 days
+    gb_level vs hist_mean: -8.86 (95% day-bootstrap -11.06 .. -6.54), wins 4 of 4 days

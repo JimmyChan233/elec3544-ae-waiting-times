@@ -49,13 +49,16 @@ def main():
 
     N["top_gain"] = N["top_gain"].replace("PYNEH", "Pamela Youde Nethersole Eastern")
     N["low_gain"] = N["low_gain"].replace("AHNH", "Alice Ho Miu Ling Nethersole")
-    # --- latest data facts
+    # --- latest & blind data facts
     h = pd.read_csv(ROOT / "data/processed/hourly_features_latest.csv", usecols=["fmt"])
+    hb = pd.read_csv(ROOT / "data/processed/hourly_features_blind.csv", usecols=["fmt", "hour_ts"], parse_dates=["hour_ts"])
     raw = Path.home() / "elec3544_data/raw/ae"
-    n_files = sum(len(os.listdir(raw / d)) for d in ("old", "new")) if raw.exists() else 33219
-    summ = (ROOT / f"{a.prefix}_summary.txt").read_text()
-    N.update(n_rows_latest=f"{len(h):,}", n_rows_new_latest=f"{(h.fmt == 'new').sum():,}", n_files=f"{n_files:,}",
-             n_missing_pct=re.search(r"\(([\d.]+)% hours missing", summ).group(1))
+    n_files = sum(len(os.listdir(raw / d)) for d in ("old", "new")) if raw.exists() else 33315
+    grid_hours_blind = int((hb.hour_ts.max() - hb.hour_ts.min()).total_seconds() // 3600) + 1
+    N.update(n_rows_latest=f"{len(h):,}", n_rows_new_latest=f"{(h.fmt == 'new').sum():,}",
+             n_rows_blind=f"{len(hb):,}", n_hours_blind=f"{hb.hour_ts.nunique():,}",
+             n_rows_new_blind=f"{(hb.fmt == 'new').sum():,}", n_files=f"{n_files:,}",
+             n_missing_pct_blind=f"{100 * (1 - len(hb) / (grid_hours_blind * 18)):.1f}")
 
     # --- follow-up experiments of 4 Nov
     v = pd.read_csv(ROOT / "results/hn_24h_validation.csv"); v = v[v["mode"] == "raw"].set_index("model").val_MAE
@@ -122,7 +125,10 @@ def main():
              s24_nov=pm(pv(24, "nov", f"gb_slow_history_minus_{rule}")), s24_nov_ci=pci(24, "nov", f"gb_slow_history_minus_{rule}"),
              gl3_oct=f1(pv(3, "oct", "gb_level")), gl3_nov=f1(pv(3, "nov", "gb_level")), gl24_oct=f1(pv(24, "oct", "gb_level")), gl24_nov=f1(pv(24, "nov", "gb_level")),
              qw=round(pv(3, "nov", "quantile_10_90", "width") / 5) * 5, qc_oct=f"{pv(3, 'oct', 'quantile_10_90', 'coverage'):.0%}", qc_nov=f"{pv(3, 'nov', 'quantile_10_90', 'coverage'):.0%}",
-             q120=re.search(r"exactly 120 min: ([\d.]+%)", psum).group(1), wx_missing=re.search(r"rainfall\): ([\d.]+)%", psum).group(1).split(".")[0] + "%",
+             q120=re.search(r"exactly 120 min: ([\d.]+%)", psum).group(1),
+             wx_missing=f"{round(float(re.search(r'rainfall\): ([\d.]+)%', psum).group(1)))}%",
+             b1_3=f"{float(re.search(r'H=3: damped-anomaly weight ([0-9.]+)', psum).group(1)):.2f}",
+             b1_24=f"{float(re.search(r'H=24: damped-anomaly weight ([0-9.]+)', psum).group(1)):.2f}",
              pw_rule=f"{float(re.search(r'rule\s+correct ([\d.]+)', (ROOT / 'results/posthoc_pairwise.txt').read_text()).group(1)):.0%}",
              nov_gb24=f1(lv("reg", 24, "frozen", "nov", "grad_boosting", "MAE")), nov_dgb24=f1(-lv("reg_diff_vs_hist", 24, "frozen", "nov", "grad_boosting", "MAE")),
              nov_cigb24=ci(24, "nov", "grad_boosting"))
@@ -136,26 +142,91 @@ def main():
              pw_model=f"{float(re.search(r'model\s+correct ([\d.]+)', pwt).group(1)):.0%}",
              w3_live=("all " if (d3.ae_grad_boosting < d3.ae_hist_mean).all() else f"{int((d3.ae_grad_boosting < d3.ae_hist_mean).sum())} of ") + str(len(d3)),
              w24_live=f"{int((d24.ae_gb_slow_history < d24.ae_hist_mean).sum())} of {len(d24)}")
-    lat = pd.read_csv(ROOT / "data/processed/hourly_features_latest.csv", usecols=["hospital", "fmt", "t45_min"])
-    byh2 = lat[lat.fmt == "new"].groupby("hospital").t45_min.mean()
-    N.update(busiest=br.short(byh2.idxmax()), busiest_min=round(byh2.max()), least_busy=br.short(byh2.idxmin()), least_busy_min=round(byh2.min()))
+    # --- pre-registered blind test (11-15 Nov 2026)
+    Bm = pd.read_csv(ROOT / "results/blind_nov11_15_metrics.csv")
+    BF = pd.read_csv(ROOT / "results/blind_nov11_15_foundation_metrics.csv").set_index("H")
+    bpw = (ROOT / "results/blind_nov11_15_pairwise.txt").read_text()
+
+    def bv(H, model, col="MAE"):
+        return Bm[(Bm.H == H) & (Bm.model == model)][col].iloc[0]
+
+    def bci(H, model):
+        return f"{pm(bv(H, model, 'ci_lo'))} to {pm(bv(H, model, 'ci_hi'))}"
+
+    N.update(
+        blind_n=f"{int(bv(3, 'hist_mean', 'n')):,}",
+        blind_hm=f1(bv(3, "hist_mean")),
+        r3_blind=f1(bv(3, "level_anomaly")),
+        r24_blind=f1(bv(24, "level_anomaly")),
+        gb3_blind=f1(bv(3, "grad_boosting")),
+        s24_blind_mae=f1(bv(24, "gb_slow_history")),
+        g3_blind=f1(-bv(3, "grad_boosting_minus_level_anomaly")),
+        g3_blind_ci=bci(3, "grad_boosting_minus_level_anomaly"),
+        w3_blind=f"{int(bv(3, 'grad_boosting_minus_level_anomaly', 'wins'))} of {int(bv(3, 'grad_boosting_minus_level_anomaly', 'n_days'))}",
+        s24_blind_diff=pm(bv(24, "gb_slow_history_minus_level_anomaly")),
+        s24_blind_ci=bci(24, "gb_slow_history_minus_level_anomaly"),
+        w24_blind=f"{int(bv(24, 'gb_slow_history_minus_level_anomaly', 'wins'))} of {int(bv(24, 'gb_slow_history_minus_level_anomaly', 'n_days'))}",
+        fm3_blind=f1(BF.loc[3, "MAE"]),
+        fm24_blind=f1(BF.loc[24, "MAE"]),
+        fmc3_blind=f"{BF.loc[3, 'coverage']:.0%}",
+        fmc24_blind=f"{BF.loc[24, 'coverage']:.0%}",
+        qc3_blind=f"{bv(3, 'quantile_10_90', 'coverage'):.0%}",
+        qw3_blind=round(bv(3, "quantile_10_90", "width")),
+        qc24_blind=f"{bv(24, 'quantile_10_90', 'coverage'):.0%}",
+        pw_blind_n=re.search(r"over ([\d,]+) hospital-pair", bpw).group(1),
+        pw_blind_model=f"{float(re.search(r'model\s+correct ([\d.]+)', bpw).group(1)):.0%}",
+        pw_blind_rule=f"{float(re.search(r'rule\s+correct ([\d.]+)', bpw).group(1)):.0%}",
+        pw_blind_hist=f"{float(re.search(r'hist_mean\s+correct ([\d.]+)', bpw).group(1)):.0%}",
+        pw_blind_now=f"{float(re.search(r'wait_now\s+correct ([\d.]+)', bpw).group(1)):.0%}",
+    )
+
     prow = []
     for key, name in (("hist_mean", "Historical mean (original baseline)"), ("rolling28", "Rule: 28-day mean, same clock hour"), ("damped_anomaly", "Rule: historical mean + damped anomaly"),
                       ("level_anomaly", "Rule: 28-day mean + damped anomaly"), ("decision_tree", "Decision tree"), ("grad_boosting", "Gradient boosting (frozen model)"),
                       ("gb_slow_history", "Gradient boosting + slow history"), ("gb_level", "Gradient boosting + level features")):
-        prow.append([name] + [f1(pv(H, per, key)) for H in (3, 24) for per in ("oct", "nov")])
+        prow.append([name] + [f1(pv(H, per, key)) for H in (3, 24) for per in ("oct", "nov")] )
     F = pd.read_csv(ROOT / "results/foundation_metrics.csv").set_index(["H", "period"])
     FP = pd.read_csv(ROOT / "results/foundation_predictions.csv", parse_dates=["target_hour"])
     G3 = pd.read_csv(ROOT / "results/live_nov_predictions_3h.csv", parse_dates=["target_hour"])
     mrg = FP[(FP.H == 3) & (FP.period == "nov")].merge(G3[["hospital", "target_hour", "model"]], on=["hospital", "target_hour"])
     dd = mrg.assign(ae_gb=(mrg.actual - mrg.model).abs()).groupby(mrg.target_hour.dt.normalize())[["ae", "ae_gb"]].mean()
-    gaps = sorted([F.loc[(3, "nov"), "MAE"] - pv(3, "nov", "grad_boosting"), F.loc[(3, "oct"), "MAE"] - pv(3, "oct", "grad_boosting")])
     N.update(fm3_oct=f1(F.loc[(3, "oct"), "MAE"]), fm3_nov=f1(F.loc[(3, "nov"), "MAE"]), fm24_oct=f1(F.loc[(24, "oct"), "MAE"]), fm24_nov=f1(F.loc[(24, "nov"), "MAE"]),
              fmc_oct=f"{F.loc[(3, 'oct'), 'coverage']:.0%}", fmc_nov=f"{F.loc[(3, 'nov'), 'coverage']:.0%}",
              fm_gap="1 to 2", fm_days=f"{int((dd.ae < dd.ae_gb).sum())} of {len(dd)}")
     prow.insert(5, ["Chronos-Bolt, zero-shot [10]"] + [f1(F.loc[(H, per), "MAE"]) for H in (3, 24) for per in ("oct", "nov")])
-    N["table_post"] = br.md_table(["Method (trained before Sep 2026)", "3 h Oct", "3 h Nov", "24 h Oct", "24 h Nov"], prow) + \
-        "\n\n: Post-hoc comparison, MAE in minutes on the complete October (1–31) and on 1–10 November.\n"
+    # Insert Blind columns into Table 3: [name, 3h Oct, 3h Nov, 3h Blind, 24h Oct, 24h Nov, 24h Blind]
+    blind_keys = ("hist_mean", "rolling28", "damped_anomaly", "level_anomaly", "decision_tree",
+                  "chronos", "grad_boosting", "gb_slow_history", "gb_level")
+    for r, key in zip(prow, blind_keys):
+        b3v = f1(BF.loc[3, "MAE"]) if key == "chronos" else f1(bv(3, key))
+        b24v = f1(BF.loc[24, "MAE"]) if key == "chronos" else f1(bv(24, key))
+        r[:] = [r[0], r[1], r[2], b3v, r[3], r[4], b24v]
+    N["table_post"] = br.md_table(["Method (trained before Sep 2026)", "3 h Oct", "3 h Nov", "3 h Blind", "24 h Oct", "24 h Nov", "24 h Blind"], prow) + \
+        "\n\n: Post-hoc (complete Oct, 1–10 Nov) and pre-registered blind (12–15 Nov) MAE in minutes.\n"
+
+    prereg_rows = [
+        ["3 h: GB beats rule by 1–3 min, wins most days",
+         f"GB {N['gb3_blind']} vs rule {N['r3_blind']} ({N['g3_blind']} min better, CI {N['g3_blind_ci']}, {N['w3_blind']} days)",
+         "Confirmed (stronger)"],
+        ["24 h: slow-history GB within 1.5 min of rule",
+         f"Slow GB {N['s24_blind_mae']} vs rule {N['r24_blind']} ({N['s24_blind_diff']} min, CI {N['s24_blind_ci']}, {N['w24_blind']} days)",
+         "Confirmed"],
+        ["3 h Chronos-Bolt between rule and GB (or within 1 min)",
+         f"Chronos {N['fm3_blind']} vs GB {N['gb3_blind']} and rule {N['r3_blind']} (24 h: {N['fm24_blind']})",
+         "Confirmed"],
+        ["10–90% coverage: GB 70–80%; Chronos 75–85%",
+         f"GB {N['qc3_blind']} (width {N['qw3_blind']} min); Chronos {N['fmc3_blind']} (24 h: {N['fmc24_blind']})",
+         "Chronos confirmed; GB slightly under (69.6%)"],
+        ["3 h pairwise: rule & GB within 2 pp, both ≥2 pp above board",
+         f"GB {N['pw_blind_model']}, rule {N['pw_blind_rule']}, board {N['pw_blind_now']} ({N['pw_blind_n']} pairs)",
+         "Confirmed"],
+    ]
+    prereg_hdr = ["Pre-registered expectation (11 Nov)", "Observed (12–15 Nov, n = 1,728)", "Verdict"]
+    N["table_prereg"] = "\n".join([
+        "| " + " | ".join(prereg_hdr) + " |",
+        "|" + "-" * 34 + "|" + "-" * 38 + "|" + "-" * 22 + "|",
+        *["| " + " | ".join(str(c) for c in r) + " |" for r in prereg_rows],
+    ]) + "\n\n: Pre-registered blind test scorecard against expectations fixed in `PREREGISTRATION.md` on 11 November.\n"
     # Table 2 with precision and recall (the proposal promised them)
     mm = pd.read_csv(ROOT / f"{a.prefix}_metrics.csv")
 

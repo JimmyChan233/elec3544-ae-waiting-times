@@ -22,9 +22,10 @@ data/raw/ae/
 G
 mkdir -p "$DEST/data/processed"
 cat > "$DEST/data/processed/README.md" <<'G'
-The processed tables (`hourly_features_full.csv`, `hourly_features_latest.csv`, about 70 MB each) are too
-large for the repository. Download `Group16-Project-data.zip` from the repository's Releases page and unzip it
-here, or rebuild them from the public archive with the commands in the top-level README.
+The processed tables (`hourly_features_full.csv`, `hourly_features_latest.csv`, `hourly_features_blind.csv`,
+about 70 MB each) are too large for the repository. Download `Group16-Project-data.zip` from the repository's
+Releases page (`data-2026-11-26`) and unzip it here, or rebuild them from the public archive with the commands
+in the top-level README and report Supplementary Materials.
 G
 if grep -rIl -E "30[0-9]{8}" "$DEST" --exclude-dir=.git --exclude='*.csv' --exclude='*.json' | grep -q .; then
   echo "WARNING: a student number is still present:"; grep -rIl -E "30[0-9]{8}" "$DEST" --exclude-dir=.git --exclude='*.csv' --exclude='*.json'
